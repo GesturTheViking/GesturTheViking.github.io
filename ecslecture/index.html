@@ -1,0 +1,1330 @@
+<!doctype html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+		<title>Presentation ECS</title>
+
+		<link rel="stylesheet" href="dist/reset.css">
+		<link rel="stylesheet" href="dist/reveal.css">
+		<link rel="stylesheet" href="dist/theme/moon.css">
+
+		<!-- Theme used for syntax highlighted code -->
+		<link rel="stylesheet" href="plugin/highlight/monokai.css">
+	</head>
+	<body>
+		<div class="reveal">
+			<div class="slides">
+				<section>
+					<h1>Komponentsystem</h1>
+					<h6>Elia Rönning - SP20🦧</h6>
+				</section>
+				<section>
+					<ul>
+						<h3>Föreläsningen</h3>
+						<li>Begrepp: Vad är? Vad är inte?</li>
+						<li>Varför? Vad är komponentsystem bra för?</li>
+						<li>Komponentsystem vs Entity-Component-System</li>
+						<li>Exempelkod</li>
+						<li>Frågor</li>
+					</ul>
+				</section>
+				<section>
+					<h2>Mycket att gå igenom så spara frågorna till slutet.</h2>
+				</section>
+				<section>
+					<h1>Disclaimer!</h1>
+					<h5>Begreppen är inte huggna i sten och kan variera beroende på vem du pratar med. Det finns inget rätt eller fel.</h4>
+				</section>
+				<section>
+					<h2>Vad är ett komponentsystem?</h2>
+					<ul>
+						<li class="fragment">Motorarkitektur</li>
+						<li class="fragment">Composition over Inheritance</li>
+						<li class="fragment">Dynamisk och generell hantering av objekt i spelvärlden</li>
+					</ul>
+				</section>
+				<section>
+					<h5>GameObjects har komponenter</h5>
+					<img src="GameObjectDiagram.svg" alt="">
+				</section>
+				<section>
+					<h5>Composition over Inheritance</h5>
+					<pre><code data-line-numbers="1-3|16-19" data-noescape>class PlayerCharacter :
+public Transform, public Sprite,
+public PhysicsBody, public BoxCollider
+{
+public:
+	PlayerCharacter();
+	~PlayerCharacter();
+
+	void Init();
+	void Update(float dt);
+	void Render();
+
+	// ...
+
+private:
+	Transform myTransform;
+	Sprite mySprite;
+	PhysicsBody myPhysicsBody;
+	BoxCollider myBoxCollider;
+};
+					</code></pre>
+				</section>
+				<section>
+					<h3>Dynamisk komposition, istället för statisk.</h3>
+					<ul>
+						<li class="fragment">Kompositionen av ett objekt kan ändras i runtime.</li>
+						<li class="fragment">Gjort för serialisering av objekt.</li>
+						<li class="fragment">GameObjects ska kunna laddas in från exempelvis JSON, istället för att bestämmas vid compile time.</li>
+					</ul>
+				</section>
+				<section>
+					<h5>Exempel</h5>
+					<div class="r-stack">
+						<img class="fragment fade-out" data-fragment-index="0" src="UnityExample.png" alt="" width="500">
+						<img class="fragment current-visible" data-fragment-index="0" src="UnrealExample.png" alt="" width="500">
+						<img class="fragment current-visible" src="GratredigerarnExample.png" alt="" width="500">
+						<img class="fragment" src="GodotExample.png" alt="" width="250">
+					</div>
+				</section>
+				<section>
+					<h2>Vad är inte ett komponentsystem? Några exempel:</h2>
+				</section>
+				<section data-transition="concave">
+					<h5>Arv</h5>
+					<pre><code data-line-numbers="2-3" data-noescape>class PlayerCharacter :
+public Transform, public Sprite,
+public PhysicsBody, public BoxCollider
+{
+public:
+	PlayerCharacter();
+	~PlayerCharacter();
+
+	void Init();</code></pre>
+				</section>
+				<section data-transition="concave">
+					<h5>Komposition i compile time</h5>
+					<pre>
+						<code data-line-numbers="14-17" data-noescape>class PlayerCharacter
+{
+public:
+	PlayerCharacter();
+	~PlayerCharacter();
+
+	void Init();
+	void Update(float dt);
+	void Render();
+
+	// ...
+
+private:
+	Transform myTransform;
+	Sprite mySprite;
+	PhysicsBody myPhysicsBody;
+	BoxCollider myBoxCollider;
+						</code>
+					</pre>
+				</section>
+				<section data-transition="concave">
+					<h5>Type Object Pattern</h5>
+					<pre>
+						<code data-noescape>class MonsterEnemy
+{
+public:
+    MonsterEnemy(MonsterType& aTypeObject);
+    
+private:
+    MonsterType& myType;
+};</code>
+					</pre>
+				</section>
+				<section>
+					<h3>I ett komponentsystem...</h3>
+					<ul>
+						<li class="fragment">...är spelobjekt uppbyggda av komponenter.</li>
+						<li class="fragment">...komponeras objekt i runtime.</li>
+						<li class="fragment">...sköter komponenterna sig själva.</li>
+					</ul>
+				</section>
+				<section>
+					<h1>EXEMPELKOD!😱</h1>
+				</section>
+				<section>
+					<h3>Några saker att tänka på:</h3>
+					<ul>
+						<li class="fragment">All exempelkod ligger uppe på GitHub och är fungerande.</li>
+						<li class="fragment">Koden är ganska shit och verkligen bare minimum.</li>
+						<li class="fragment">Och igen, det finns inget rätt eller fel, detta är bara ett sätt.</li>
+					</ul>
+				</section>
+				<section>
+					<h1>class GameObject;</h1>
+				</section>
+				<section data-transition="zoom">
+					<h5>GameObject.h</h5>
+					<pre><code data-line-numbers="|51-52|54|5-11|13-16|18-25|22|23|24|26-39|29-30|31|32-35|38|41-43|45-48" data-noescape>class GameObject
+{
+public:
+	/* Constructors, Destructor, Assignment Operators */
+	GameObject();
+	virtual ~GameObject();
+
+	GameObject(const GameObject& other);
+	GameObject(GameObject&& other) noexcept;
+	GameObject& operator=(const GameObject& other);
+	GameObject& operator=(GameObject&& other) noexcept;
+
+	/* Virtual Functions */
+	virtual void Init();
+	virtual void Update(float dt);
+	virtual void Render();
+
+	/* Components */
+	template &lt;class ComponentType&gt;
+	ComponentType* AddComponent()
+	{
+		ComponentType* comp = new ComponentType();
+		myComponents.push_back(comp);
+		return comp;
+	}
+	template &lt;class ComponentType&gt;
+	ComponentType* GetComponent()
+	{
+		for (Component* comp : myComponents)
+		{
+			ComponentType* ptr = dynamic_cast&lt;ComponentType*&gt;(comp);
+			if (ptr)
+			{
+				return ptr;
+			}
+		}
+
+		return nullptr;
+	}
+
+	/* Position */
+	void SetPosition(v2f pos);
+	v2f GetPosition() const;
+
+	/* Managing */
+	static void InitAll();
+	static void UpdateAll(float dt);
+	static void RenderAll();
+
+protected:
+	std::vector&lt;class Component*&gt; myComponents;
+	v2f myPos;
+
+	static std::vector<GameObject*> ourGameObjects;
+};</code></pre>
+				</section>
+				<section data-transition="zoom">
+					<h5>GameObject.cpp</h5>
+					<pre><code data-noescape data-line-numbers="|7-11|10|13-32|15-19|22-30|60-66|68-74|76-82|84-92|94-100|102-108|110-116">#include "GameObject.h"
+
+#include "Component.hpp"
+
+std::vector<GameObject*> GameObject::ourGameObjects;
+
+GameObject::GameObject()
+	: myComponents{}
+{
+	ourGameObjects.push_back(this);
+}
+
+GameObject::~GameObject()
+{
+	for (Component* comp : myComponents)
+	{
+		delete comp;
+	}
+	myComponents.clear();
+
+	{
+		const size_t size = ourGameObjects.size();
+		for (size_t index = 0U; index < size; ++index)
+		{
+			if (ourGameObjects[index] == this)
+			{
+				ourGameObjects.erase(ourGameObjects.begin() + index);
+				break;
+			}
+		}
+	}
+}
+
+GameObject::GameObject(const GameObject& other)
+{
+	myComponents = other.myComponents;
+}
+
+GameObject::GameObject(GameObject&& other)
+{
+	myComponents = other.myComponents;
+	other.myComponents.clear();
+}
+
+GameObject& GameObject::operator=(const GameObject& other)
+{
+	myComponents = other.myComponents;
+
+	return *this;
+}
+
+GameObject& GameObject::operator=(GameObject&& other)
+{
+	myComponents = other.myComponents;
+	other.myComponents.clear();
+
+	return *this;
+}
+
+void GameObject::Init()
+{
+	for (Component* comp : myComponents)
+	{
+		comp->Init(this);
+	}
+}
+
+void GameObject::Update(float dt)
+{
+	for (Component* comp : myComponents)
+	{
+		comp->Update(this, dt);
+	}
+}
+
+void GameObject::Render()
+{
+	for (Component* comp : myComponents)
+	{
+		comp->Render(this);
+	}
+}
+
+void GameObject::SetPosition(v2f pos)
+{
+	myPos = pos;
+}
+
+v2f GameObject::GetPosition() const
+{
+	return myPos;
+}
+
+void GameObject::InitAll()
+{
+	for (GameObject* obj : ourGameObjects)
+	{
+		obj->Init();
+	}
+}
+
+void GameObject::UpdateAll(float dt)
+{
+	for (GameObject* obj : ourGameObjects)
+	{
+		obj->Update(dt);
+	}
+}
+
+void GameObject::RenderAll()
+{
+	for (GameObject* obj : ourGameObjects)
+	{
+		obj->Render();
+	}
+}
+					</code></pre>
+				</section>
+				<section>
+					<h5>Component.hpp</h5>
+					<pre><code data-noescape data-line-numbers="|12-14">class Component
+{
+public:
+    Component() = default;
+    virtual ~Component() = default;
+
+    Component(const Component&) = default;
+    Component(Component&&) = default;
+    Component& operator=(const Component&) = default;
+    Component& operator=(Component&&) = default;
+
+    virtual void Init(class GameObject* parent) = 0;
+    virtual void Update(GameObject* parent, float dt) = 0;
+    virtual void Render(GameObject* parent) = 0;
+};
+					</code></pre>
+				</section>
+				<section>
+					<h3>Komponentsystemets Interface</h3>
+					<div class="r-stack">
+						<pre class="fragment fade-out" data-fragment-index="0"><code data-noescape>void Init()
+{
+	GameObject::InitAll();
+}
+
+void Update(float dt)
+{
+	GameObject::UpdateAll();
+	GameObject::RenderAll();
+							}
+						</code></pre>
+						<img src="UpdateCallHierarchy.svg" class="fragment" data-fragment-index="0" width="500">
+					</div>
+				</section>
+				<section>
+					<h1>Exempelkomponent!</h1>
+					<h3>SpriteComponent😲</h3>
+				</section>
+				<section data-transition="zoom">
+					<h5>SpriteComponent.h</h5>
+					<pre><code data-noescape data-line-numbers="|1|28-31|4-11|14-16|18-25">class SpriteComponent : public Component
+{
+public:
+	/* Constructors, Destructor, Assignment Operators */
+	SpriteComponent();
+	~SpriteComponent();
+
+	SpriteComponent(const SpriteComponent& sc);
+	SpriteComponent(SpriteComponent&& sc) noexcept;
+	SpriteComponent& operator=(const SpriteComponent& sc);
+	SpriteComponent& operator=(SpriteComponent&& sc) noexcept;
+
+	/* Component Virtual Methods */
+	void Init(class GameObject* parent);
+	void Update(GameObject* parent, float dt);
+	void Render(GameObject* parent);
+
+	/* Setters */
+	void SetSpritePath(const char* const path);
+	void SetSize(v2 size);
+	void SetColor(Color color);
+
+	/* Getters */
+	v2 GetSize() const;
+	Color GetColor() const;
+
+private:
+	Texture myTexture;
+	v2 mySize;
+	Color myColor;
+	FixedString256 myTexturePath;
+};
+					</code></pre>
+				</section>
+				<section data-transition="zoom">
+					<h5>SpriteComponent.cpp</h5>
+					<pre><code data-noescape data-line-numbers="|5-10|12-18|20-60|62-63|65-66|68-71|73-82|84-92|94-102">#include "SpriteComponent.h"
+
+#include "GameObject.h"
+
+SpriteComponent::SpriteComponent()
+	: myTexture(0U)
+	, mySize({ 0, 0 })
+	, myColor({ 255, 255, 255 })
+	, myTexturePath("")
+{}
+
+SpriteComponent::~SpriteComponent()
+{
+	if (myTexture)
+	{
+		ReturnTexture(myTexture);
+	}
+}
+
+SpriteComponent::SpriteComponent(const SpriteComponent& sc)
+	: myTexture(0U)
+	, mySize(sc.mySize)
+	, myColor(sc.myColor)
+	, myTexturePath(sc.myTexturePath)
+{
+	myTexture = CreateTexture(myTexturePath);
+}
+
+SpriteComponent::SpriteComponent(SpriteComponent&& sc)
+	: myTexture(sc.myTexture)
+	, mySize(sc.mySize)
+	, myColor(sc.myColor)
+	, myTexturePath(sc.myTexturePath)
+{
+	sc.myTexture = 0;
+	sc.myTexturePath = "";
+}
+
+SpriteComponent& SpriteComponent::operator=(const SpriteComponent& sc)
+{
+	mySize = sc.mySize;
+	myColor = sc.myColor;
+	myTexturePath = sc.myTexturePath;
+	myTexture = CreateTexture(myTexturePath);
+
+	return *this;
+}
+
+SpriteComponent& SpriteComponent::operator=(SpriteComponent&& sc)
+{
+	mySize = sc.mySize;
+	myColor = sc.myColor;
+	myTexturePath = sc.myTexturePath;
+	myTexture = sc.myTexture;
+
+	sc.myTexture = 0;
+	sc.myTexturePath = "";
+
+	return *this;
+}
+
+void SpriteComponent::Init(class GameObject* parent)
+{}
+
+void SpriteComponent::Update(GameObject* parent, float dt)
+{}
+
+void SpriteComponent::Render(GameObject* parent)
+{
+	DrawTexturedQuad(myTexture, Convertv2f_v2(parent->GetPosition()), mySize, myColor);
+}
+
+void SpriteComponent::SetSpritePath(const char* const path)
+{
+	if (myTexture)
+	{
+		ReturnTexture(myTexture);
+	}
+
+	myTexturePath = path;
+	myTexture = CreateTexture(path, &mySize);
+}
+
+void SpriteComponent::SetSize(v2 size)
+{
+	mySize = size;
+}
+
+void SpriteComponent::SetColor(Color color)
+{
+	myColor = color;
+}
+
+v2 SpriteComponent::GetSize() const
+{
+	return mySize;
+}
+
+Color SpriteComponent::GetColor() const
+{
+	return myColor;
+}
+					</code></pre>
+				</section>
+				<section>
+					<h2>Användningsexempel!🤑</h2>
+				</section>
+				<section>
+					<h3>Skapa GameObject med en SpriteComponent.</h3>
+					<pre><code>GameObject* testObj = nullptr;
+
+void Init()
+{
+	testObj = new GameObject;
+	testObj->SetPosition({ 300, 300 });
+	SpriteComponent* spr = testObj->AddComponent&lt;SpriteComponent&gt;();
+	spr->SetSpritePath("../Assets/dawdwdawda.png");
+}</code></pre>
+				</section>
+				<section>
+					<h3>Resultat</h3>
+					<img src="ComponentSystemInit.png">
+				</section>
+				<section>
+					<h3>Uppdatera GameObject</h3>
+					<pre><code data-line-numbers="|3-4|6|7-8|10-12" data-noescape>void Update(float dt)
+{
+	static float totalTime = 0.0f;
+	totalTime += dt / 2.0f;
+
+	float factor = abs(sinf(totalTime));
+	testObj->SetPosition(
+		{ 400.0f + 300.0f * factor, 300.f });
+
+	uint8_t color = uint8_t(factor * 255.0f);
+	testObj->GetComponent<SpriteComponent>()
+		->SetColor({ color, 0, uint8_t(255 - color) });
+}</code></pre>
+				</section>
+				<section>
+					<h3>Resultat</h3>
+					<video loop="true" data-autoplay src="ComponentSystemUpdate.mp4"></video>
+				</section>
+				<section data-transition="convex">
+					<h1>ECS🤯</h1>
+				</section>
+				<section data-transition="zoom">
+					<h2>Entity-Component-System</h2>
+					<ul>
+						<li class="fragment">Inte samma sak som ett komponentsystem.</li>
+						<li class="fragment">Men som sagt, begreppen är inte huggna i sten och alla har olika meningar.</li>
+						<li class="fragment">Definition från Designmönster för Spelutveckling.</li>
+					</ul>
+				</section>
+				<section>
+					<h2>Namnet</h2>
+					<ul>
+						<li class="fragment">Inte ett system av entities och komponenter.</li>
+						<li class="fragment">De tre "pelarna" som utgör ett ECS.</li>	
+						<li class="fragment">Tänk Model-View-Controller.</li>
+					</ul>
+				</section>
+				<section>
+					<h1>CS vs. ECS</h1>
+				</section>
+				<section>
+					<h2>CS vs. ECS</h2>
+					<ul>
+						<li class="fragment">Komponentsystem - Objektorientering</li>
+						<li class="fragment">Entity-Component-System - Dataorientering</li>
+						<li class="fragment">(Inte att förväxla med datadriven programmering)</li>
+					</ul>
+				</section>
+				<section>
+					<h3>Dataorientering</h3>
+					<ul>
+						<li class="fragment">Kan ses som ett paradigm, precis som objektorientering.</li>
+						<li class="fragment">Objektorientering: Bunta ihop beteende och data i objekt.</li>
+						<li class="fragment">Dataorientering: Separera data och beteende.</li>
+						<li class="fragment">Array of structs vs. Struct of arrays: Undviker hierarkiska datastrukturer</li>
+						<li class="fragment">Optimerat för CPU-cachen: Hot/Cold splitting.</li>
+					</ul>
+				</section>
+				<section>
+					<h3>Array of structs vs. Struct of arrays</h3>
+					<pre><code data-noescape data-line-numbers="|1-9|11-15">class AssociativeArrayOO
+{
+	struct KeyValuePair
+	{
+		Key k;
+		Value v;
+	};
+	KeyValuePair data[size];
+};
+
+class AssociativeArrayDO
+{
+	Key keys[size];
+	Value values[size];
+};
+					</code></pre>
+				</section>
+				<section>
+					<h3>Hot/Cold Splitting</h3>
+					<img src="CPUCacheDOvOO.svg">
+				</section>
+				<section>
+					<h3>Entity-Component-System</h3>
+					<ul>
+						<li class="fragment"><b>Entity</b>: Associera komponenter med varandra; ofta bara ett ID.</li>
+						<li class="fragment"><b>Component</b>: All data av spelobjekten är atomiserade i komponenter, har inget beteende.</li>
+						<li class="fragment"><b>System</b>: Utför beteende på komponenter, har inget eget tillstånd; ofta bara en funktion.</li>
+					</ul>
+				</section>
+				<section>
+					<h3>Fördelar</h3>
+					<ul>
+						<li class="fragment">Bättre prestanda.</li>
+						<li class="fragment">Lättare att utföra datatransformationer över flera trådar.</li>
+						<li class="fragment">Mer robust med ID istället pekare.</li>
+					</ul>
+				</section>
+				<section>
+					<h3>Exempel: Unity DOTS</h3>
+					<video src="DOTS.mp4" loop="true" data-autoplay></video>
+				</section>
+				<section data-transition="concave">
+					<h1>EXEMPELKOD😍</h1>
+				</section>
+				<section>
+					<h1>Entity🥺</h1>
+				</section>
+				<section data-transition="zoom"><h3>
+					Entities är IDn
+				</h3>
+				<pre><code data-noescape data-line-numbers="|">#include <stdint.h>
+using Entity = uint32_t;</code></pre>
+			</section>
+			<section>
+				<h3>Vi behöver ett sätt att hålla reda på upptagna/lediga IDn.</h3>
+				<ul>
+					<li class="fragment">std::set?</li>
+					<li class="fragment">bitset?</li>
+					<li class="fragment">Helt okej lösningar...</li>
+					<li class="fragment">..men jag körde på en linked list.</li>
+				</ul>
+			</section>
+			<section data-transition="zoom">
+				<h5>EntityManager.h</h5>
+				<pre><code data-noescape data-line-numbers="|22-23|24|4-11|14-15|17-19">class EntityManager
+{
+public:
+	/* Constructors, Destructor, Assignment Operators */
+	EntityManager();
+	~EntityManager() = default;
+
+	EntityManager(const EntityManager& other);
+	EntityManager(EntityManager&& other) noexcept;
+	EntityManager& operator=(const EntityManager& other);
+	EntityManager& operator=(EntityManager&& other);
+
+	/* Public Interface */
+	Entity GetEntity();
+	void ReturnEntity(Entity e);
+
+	bool Validate(Entity e) const;
+
+	const std::bitset&lt;MAX_ENTITIES&gt;& GetOccupiedEntities() const;
+
+private:
+	Entity myAvailableEntitiesLL[MAX_ENTITIES];
+	Entity myFirstAvailableEntity;
+	std::bitset&lt;MAX_ENTITIES&gt; myOccupiedEntities;
+};</code></pre>
+			</section>
+			<section>
+				<h3>Initialisera länkade listan</h3>
+				<pre><code data-noescape data-line-numbers="|10-13|6">#include "EntityManager.h"
+
+#include <assert.h>
+
+EntityManager::EntityManager()
+	: myFirstAvailableEntity(0)
+	, myAvailableEntitiesLL{}
+	, myOccupiedEntities{}
+{
+	for (Entity e = 0U; e < MAX_ENTITIES; ++e)
+	{
+		myAvailableEntitiesLL[e] = e + 1;
+	}
+}
+
+EntityManager::EntityManager(const EntityManager& other)
+	: myFirstAvailableEntity(other.myFirstAvailableEntity)
+	, myAvailableEntitiesLL{}
+	, myOccupiedEntities(other.myOccupiedEntities)
+{
+	memcpy(myAvailableEntitiesLL, other.myAvailableEntitiesLL, sizeof(myAvailableEntitiesLL));
+}
+EntityManager::EntityManager(EntityManager&& other) noexcept
+	: myFirstAvailableEntity(other.myFirstAvailableEntity)
+	, myAvailableEntitiesLL{}
+	, myOccupiedEntities(other.myOccupiedEntities)
+{
+	memcpy(myAvailableEntitiesLL, other.myAvailableEntitiesLL, sizeof(myAvailableEntitiesLL));
+}
+EntityManager& EntityManager::operator=(const EntityManager& other)
+{
+	myFirstAvailableEntity = other.myFirstAvailableEntity;
+	myOccupiedEntities = other.myOccupiedEntities;
+	memcpy(myAvailableEntitiesLL, other.myAvailableEntitiesLL, sizeof(myAvailableEntitiesLL));
+
+	return *this;
+}
+EntityManager& EntityManager::operator=(EntityManager&& other)
+{
+	myFirstAvailableEntity = other.myFirstAvailableEntity;
+	myOccupiedEntities = other.myOccupiedEntities;
+	memcpy(myAvailableEntitiesLL, other.myAvailableEntitiesLL, sizeof(myAvailableEntitiesLL));
+
+	return *this;
+}
+
+Entity EntityManager::GetEntity()
+{
+	assert(("There are no available entities.",
+		myFirstAvailableEntity < MAX_ENTITIES));
+
+	Entity newEntity = myFirstAvailableEntity;
+	myFirstAvailableEntity =
+		myAvailableEntitiesLL[myFirstAvailableEntity];
+	myAvailableEntitiesLL[newEntity] = INVALID_ENTITY;
+	myOccupiedEntities.set(newEntity);
+
+	return newEntity;
+}
+void EntityManager::ReturnEntity(Entity e)
+{
+	assert(("Invalid entity.", Validate(e)));
+	assert(("Attempting to return already available entity.", myAvailableEntitiesLL[e] >= MAX_ENTITIES));
+
+	myOccupiedEntities.reset(e);
+	myAvailableEntitiesLL[e] = myFirstAvailableEntity;
+	myFirstAvailableEntity = e;
+}
+
+bool EntityManager::Validate(Entity e) const
+{
+	if (e >= MAX_ENTITIES)
+		return false;
+	return myOccupiedEntities.test(e);
+}
+
+const std::bitset<MAX_ENTITIES>& EntityManager::GetOccupiedEntities() const
+{
+	return myOccupiedEntities;
+}</code></pre>
+			</section>
+			<section data-background-color="#0084a6" data-transition="fade">
+				<h3>GetEntity()</h3>
+				<img src="GetEntity1.svg">
+			</section>
+			</section>
+			<section data-background-color="#0084a6" data-transition="fade">
+				<h3>GetEntity()</h3>
+				<img src="GetEntity2.svg">
+			</section>
+			<section>
+				<h3>GetEntity()</h3>
+				<pre><code data-noescape data-line-numbers="|47-59|49-50|52|53-54|55|56|58">#include "EntityManager.h"
+
+#include <assert.h>
+
+EntityManager::EntityManager()
+	: myFirstAvailableEntity(0)
+	, myAvailableEntitiesLL{}
+	, myOccupiedEntities{}
+{
+	for (Entity e = 0U; e < MAX_ENTITIES; ++e)
+	{
+		myAvailableEntitiesLL[e] = e + 1;
+	}
+}
+
+EntityManager::EntityManager(const EntityManager& other)
+	: myFirstAvailableEntity(other.myFirstAvailableEntity)
+	, myAvailableEntitiesLL{}
+	, myOccupiedEntities(other.myOccupiedEntities)
+{
+	memcpy(myAvailableEntitiesLL, other.myAvailableEntitiesLL, sizeof(myAvailableEntitiesLL));
+}
+EntityManager::EntityManager(EntityManager&& other) noexcept
+	: myFirstAvailableEntity(other.myFirstAvailableEntity)
+	, myAvailableEntitiesLL{}
+	, myOccupiedEntities(other.myOccupiedEntities)
+{
+	memcpy(myAvailableEntitiesLL, other.myAvailableEntitiesLL, sizeof(myAvailableEntitiesLL));
+}
+EntityManager& EntityManager::operator=(const EntityManager& other)
+{
+	myFirstAvailableEntity = other.myFirstAvailableEntity;
+	myOccupiedEntities = other.myOccupiedEntities;
+	memcpy(myAvailableEntitiesLL, other.myAvailableEntitiesLL, sizeof(myAvailableEntitiesLL));
+
+	return *this;
+}
+EntityManager& EntityManager::operator=(EntityManager&& other)
+{
+	myFirstAvailableEntity = other.myFirstAvailableEntity;
+	myOccupiedEntities = other.myOccupiedEntities;
+	memcpy(myAvailableEntitiesLL, other.myAvailableEntitiesLL, sizeof(myAvailableEntitiesLL));
+
+	return *this;
+}
+
+Entity EntityManager::GetEntity()
+{
+	assert(("There are no available entities.",
+		myFirstAvailableEntity < MAX_ENTITIES));
+
+	Entity newEntity = myFirstAvailableEntity;
+	myFirstAvailableEntity =
+		myAvailableEntitiesLL[myFirstAvailableEntity];
+	myAvailableEntitiesLL[newEntity] = INVALID_ENTITY;
+	myOccupiedEntities.set(newEntity);
+
+	return newEntity;
+}
+void EntityManager::ReturnEntity(Entity e)
+{
+	assert(("Invalid entity.", Validate(e)));
+	assert(("Attempting to return already available entity.", myAvailableEntitiesLL[e] >= MAX_ENTITIES));
+
+	myOccupiedEntities.reset(e);
+	myAvailableEntitiesLL[e] = myFirstAvailableEntity;
+	myFirstAvailableEntity = e;
+}
+
+bool EntityManager::Validate(Entity e) const
+{
+	if (e >= MAX_ENTITIES)
+		return false;
+	return myOccupiedEntities.test(e);
+}
+
+const std::bitset<MAX_ENTITIES>& EntityManager::GetOccupiedEntities() const
+{
+	return myOccupiedEntities;
+}</code></pre>
+			</section>
+			<section data-background-color="#0084a6" data-transition="fade">
+				<h3>ReturnEntity()</h3>
+				<img src="ReturnEntity1.svg">
+			</section>
+			<section data-background-color="#0084a6" data-transition="fade">
+				<h3>ReturnEntity()</h3>
+				<img src="ReturnEntity2.svg">
+			</section>
+			<section data-background-color="#0084a6" data-transition="fade">
+				<h3>ReturnEntity()</h3>
+				<img src="GetEntity1.svg">
+			</section>
+			<section>
+				<h3>ReturnEntity()</h3>
+				<pre><code data-noescape data-line-numbers="|60-69|62|63-64|66|67|68">#include "EntityManager.h"
+
+#include &lt;assert.h&gt;
+
+EntityManager::EntityManager()
+	: myFirstAvailableEntity(0)
+	, myAvailableEntitiesLL{}
+	, myOccupiedEntities{}
+{
+	for (Entity e = 0U; e < MAX_ENTITIES; ++e)
+	{
+		myAvailableEntitiesLL[e] = e + 1;
+	}
+}
+
+EntityManager::EntityManager(const EntityManager& other)
+	: myFirstAvailableEntity(other.myFirstAvailableEntity)
+	, myAvailableEntitiesLL{}
+	, myOccupiedEntities(other.myOccupiedEntities)
+{
+	memcpy(myAvailableEntitiesLL, other.myAvailableEntitiesLL, sizeof(myAvailableEntitiesLL));
+}
+EntityManager::EntityManager(EntityManager&& other) noexcept
+	: myFirstAvailableEntity(other.myFirstAvailableEntity)
+	, myAvailableEntitiesLL{}
+	, myOccupiedEntities(other.myOccupiedEntities)
+{
+	memcpy(myAvailableEntitiesLL, other.myAvailableEntitiesLL, sizeof(myAvailableEntitiesLL));
+}
+EntityManager& EntityManager::operator=(const EntityManager& other)
+{
+	myFirstAvailableEntity = other.myFirstAvailableEntity;
+	myOccupiedEntities = other.myOccupiedEntities;
+	memcpy(myAvailableEntitiesLL, other.myAvailableEntitiesLL, sizeof(myAvailableEntitiesLL));
+
+	return *this;
+}
+EntityManager& EntityManager::operator=(EntityManager&& other)
+{
+	myFirstAvailableEntity = other.myFirstAvailableEntity;
+	myOccupiedEntities = other.myOccupiedEntities;
+	memcpy(myAvailableEntitiesLL, other.myAvailableEntitiesLL, sizeof(myAvailableEntitiesLL));
+
+	return *this;
+}
+
+Entity EntityManager::GetEntity()
+{
+	assert(("There are no available entities.",
+		myFirstAvailableEntity < MAX_ENTITIES));
+
+	Entity newEntity = myFirstAvailableEntity;
+	myFirstAvailableEntity =
+		myAvailableEntitiesLL[myFirstAvailableEntity];
+	myAvailableEntitiesLL[newEntity] = INVALID_ENTITY;
+	myOccupiedEntities.set(newEntity);
+
+	return newEntity;
+}
+void EntityManager::ReturnEntity(Entity e)
+{
+	assert(("Invalid entity.", Validate(e)));
+	assert(("Attempting to return already available entity.",
+		myAvailableEntitiesLL[e] >= MAX_ENTITIES));
+
+	myOccupiedEntities.reset(e);
+	myAvailableEntitiesLL[e] = myFirstAvailableEntity;
+	myFirstAvailableEntity = e;
+}
+
+bool EntityManager::Validate(Entity e) const
+{
+	if (e >= MAX_ENTITIES)
+		return false;
+	return myOccupiedEntities.test(e);
+}
+
+const std::bitset<MAX_ENTITIES>& EntityManager::GetOccupiedEntities() const
+{
+	return myOccupiedEntities;
+}</code></pre>
+			</section>
+			<section>
+				<h3>Resterande funktioner</h3>
+				<pre><code data-noescape data-line-numbers="71-81">#include "EntityManager.h"
+
+#include &lt;assert.h&gt;
+
+EntityManager::EntityManager()
+	: myFirstAvailableEntity(0)
+	, myAvailableEntitiesLL{}
+	, myOccupiedEntities{}
+{
+	for (Entity e = 0U; e < MAX_ENTITIES; ++e)
+	{
+		myAvailableEntitiesLL[e] = e + 1;
+	}
+}
+
+EntityManager::EntityManager(const EntityManager& other)
+	: myFirstAvailableEntity(other.myFirstAvailableEntity)
+	, myAvailableEntitiesLL{}
+	, myOccupiedEntities(other.myOccupiedEntities)
+{
+	memcpy(myAvailableEntitiesLL, other.myAvailableEntitiesLL, sizeof(myAvailableEntitiesLL));
+}
+EntityManager::EntityManager(EntityManager&& other) noexcept
+	: myFirstAvailableEntity(other.myFirstAvailableEntity)
+	, myAvailableEntitiesLL{}
+	, myOccupiedEntities(other.myOccupiedEntities)
+{
+	memcpy(myAvailableEntitiesLL, other.myAvailableEntitiesLL, sizeof(myAvailableEntitiesLL));
+}
+EntityManager& EntityManager::operator=(const EntityManager& other)
+{
+	myFirstAvailableEntity = other.myFirstAvailableEntity;
+	myOccupiedEntities = other.myOccupiedEntities;
+	memcpy(myAvailableEntitiesLL, other.myAvailableEntitiesLL, sizeof(myAvailableEntitiesLL));
+
+	return *this;
+}
+EntityManager& EntityManager::operator=(EntityManager&& other)
+{
+	myFirstAvailableEntity = other.myFirstAvailableEntity;
+	myOccupiedEntities = other.myOccupiedEntities;
+	memcpy(myAvailableEntitiesLL, other.myAvailableEntitiesLL, sizeof(myAvailableEntitiesLL));
+
+	return *this;
+}
+
+Entity EntityManager::GetEntity()
+{
+	assert(("There are no available entities.",
+		myFirstAvailableEntity < MAX_ENTITIES));
+
+	Entity newEntity = myFirstAvailableEntity;
+	myFirstAvailableEntity =
+		myAvailableEntitiesLL[myFirstAvailableEntity];
+	myAvailableEntitiesLL[newEntity] = INVALID_ENTITY;
+	myOccupiedEntities.set(newEntity);
+
+	return newEntity;
+}
+void EntityManager::ReturnEntity(Entity e)
+{
+	assert(("Invalid entity.", Validate(e)));
+	assert(("Attempting to return already available entity.",
+		myAvailableEntitiesLL[e] >= MAX_ENTITIES));
+
+	myOccupiedEntities.reset(e);
+	myAvailableEntitiesLL[e] = myFirstAvailableEntity;
+	myFirstAvailableEntity = e;
+}
+
+bool EntityManager::Validate(Entity e) const
+{
+	if (e >= MAX_ENTITIES)
+		return false;
+	return myOccupiedEntities.test(e);
+}
+
+const std::bitset<MAX_ENTITIES>& EntityManager::GetOccupiedEntities() const
+{
+	return myOccupiedEntities;
+}</code></pre>
+			</section>
+			<section>
+				<h1>Component😵</h1>
+			</section>
+			<section>
+				<h3>ComponentArray.hpp</h3>
+				<pre><code data-noescape data-line-numbers="|1|25-28|25|26|28|16-20|16|17|18|19|20|47-55|58-62|65-74|68|84-89|70-71|73">template &lt;class ComponentType>
+class ComponentArray
+{
+public:
+	/* Constructors, Destructor, Assignment Operators */
+	ComponentArray() = delete;
+	ComponentArray(EntityManager* entityManager);
+	~ComponentArray() = default;
+
+	ComponentArray(const ComponentArray&) = delete;
+	ComponentArray(ComponentArray&&) = delete;
+	ComponentArray& operator=(const ComponentArray&) = delete;
+	ComponentArray& operator=(ComponentArray&&) = delete;
+
+	/* Public Interface */
+	bool HasComponent(Entity e) const;
+	ComponentType& AddComponent(Entity e);
+	void RemoveComponent(Entity e);
+	ComponentType& GetComponent(Entity e);
+	ComponentType* GetComponents();
+
+private:
+	void UpdateEntitiesContainingComponent();
+
+	ComponentType myComponents[MAX_ENTITIES];
+	std::bitset&lt;MAX_ENTITIES> myEntitiesContainingComponent;
+
+	EntityManager* myEntityManager;
+};
+
+template &lt;class ComponentType>
+ComponentArray&lt;ComponentType>::ComponentArray(EntityManager* entityManager)
+	: myEntityManager(entityManager)
+{
+	assert(("entityManager is nullptr.", entityManager));
+}
+
+template &lt;class ComponentType>
+bool ComponentArray&lt;ComponentType>::HasComponent(Entity e) const
+{
+	assert(("Invalid entity.", myEntityManager->Validate(e)));
+
+	return myEntitiesContainingComponent.test(e);
+}
+
+template &lt;class ComponentType>
+ComponentType& ComponentArray&lt;ComponentType>::AddComponent(Entity e)
+{
+	assert(("Invalid entity.", myEntityManager->Validate(e)));
+
+	myEntitiesContainingComponent.set(e);
+	myComponents[e] = ComponentType();
+
+	return myComponents[e];
+}
+
+template &lt;class ComponentType>
+void ComponentArray&lt;ComponentType>::RemoveComponent(Entity e)
+{
+	assert(("Invalid entity.", myEntityManager->Validate(e)));
+
+	myEntitiesContainingComponent.reset(e);
+}
+
+template &lt;class ComponentType>
+ComponentType& ComponentArray&lt;ComponentType>::GetComponent(Entity e)
+{
+	UpdateEntitiesContainingComponent();
+
+	assert(("Entity does not have a component of this type.", HasComponent(e)));
+	assert(("Invalid entity.", myEntityManager->Validate(e)));
+
+	return myComponents[e];
+}
+
+template &lt;class ComponentType>
+ComponentType* ComponentArray&lt;ComponentType>::GetComponents()
+{
+	UpdateEntitiesContainingComponent();
+
+	return myComponents;
+}
+
+template &lt;class ComponentType>
+void ComponentArray&lt;ComponentType>::UpdateEntitiesContainingComponent()
+{
+	myEntitiesContainingComponent &=
+		myEntityManager->GetOccupiedEntities();
+}</code></pre>
+			</section>
+			<section>
+				<h3>Components.hpp</h3>
+				<pre><code data-noescape data-line-numbers="|">struct TransformComponent
+{
+	v2f pos;
+};
+
+struct SpriteComponent
+{
+	Texture myTexture;
+	v2 mySize;
+	Color myColor;
+};</code></pre>
+			</section>
+			<section>
+				<h1>System💩</h1>
+			</section>
+			<section>
+				<h3>SpriteSystem.h</h3>
+				<pre><code data-noescape data-line-numbers="|">namespace Systems
+{
+	void Sprite(
+		EntityManager* em,
+		ComponentArray<TransformComponent>* trs,
+		ComponentArray<SpriteComponent>* spr);
+}</code></pre>
+			</section>
+			<section>
+				<h3>SpriteSystem.cpp</h3>
+				<pre><code data-noescape data-line-numbers="|9|11-14|16-17">void Sprite(
+	EntityManager* em,
+	ComponentArray<TransformComponent>* trs,
+	ComponentArray<SpriteComponent>* spr)
+{
+	TransformComponent* trsList = trs->GetComponents();
+	SpriteComponent* sprList = spr->GetComponents();
+
+	for (Entity e = 0U; e < MAX_ENTITIES; ++e)
+	{
+		if (!em->Validate(e)
+			|| !trs->HasComponent(e)
+			|| !spr->HasComponent(e))
+			continue;
+
+		DrawTexturedQuad(sprList[e].myTexture, Convertv2f_v2(trsList[e].pos),
+			sprList[e].mySize, sprList[e].myColor);
+	}
+}</code></pre>
+			</section>
+			<section>
+				<h1>Användningsexempel🤠</h1>
+			</section>
+			<section>
+				<pre><code data-noescape data-line-numbers="|3|5-6|9">struct GameState
+{
+	EntityManager entityManager;
+
+	ComponentArray<TransformComponent> transforms = &entityManager;
+	ComponentArray<SpriteComponent> sprites = &entityManager;
+} gameState{};
+
+Entity testObj = INVALID_ENTITY;</code></pre>
+			</section>
+			<section>
+				<pre><code data-noescape data-line-numbers="|3|5-6|8-9|10">void Init()
+{
+	testObj = gameState.entityManager.GetEntity();
+
+	gameState.transforms.AddComponent(testObj).pos =
+		{ 300.0f, 300.0f };
+
+	SpriteComponent& sprComp =
+		gameState.sprites.AddComponent(testObj);
+	sprComp.myTexture = CreateTexture("../Assets/dawdwdawda.png", &sprComp.mySize);
+}</code></pre>
+			</section>
+			<section>
+				<pre><code data-noescape data-line-numbers="|3-5|7-8|10-12|14-17">void Update(float dt)
+{
+	static float totalTime = 0.0f;
+	totalTime += dt / 2.0f;
+	float factor = abs(sinf(totalTime));
+
+	gameState.transforms.GetComponent(testObj).pos =
+		{ 400.0f + 300.0f * factor, 300.f };
+
+	uint8_t color = uint8_t(factor * 255.0f);
+	gameState.sprites.GetComponent(testObj).myColor =
+		{ color, 0, uint8_t(255 - color) };
+
+	Systems::Sprite(
+		&gameState.entityManager,
+		&gameState.transforms,
+		&gameState.sprites);
+}</code></pre>
+			</section>
+			<section>
+				<h3>Resultat😎</h3>
+				<video src="ECSResult.mp4" loop="true" data-autoplay></video>
+			</section>
+			<section>
+				<pre><code data-noescape data-fragment-index="0" data-line-numbers="|3|5-6|8-9|10">void Init()
+{
+	testObj = gameState.entityManager.GetEntity();
+
+	gameState.transforms.AddComponent(testObj).pos =
+		{ 300.0f, 300.0f };
+
+	SpriteComponent& sprComp =
+		gameState.sprites.AddComponent(testObj);
+	sprComp.myTexture = CreateTexture("../Assets/dawdwdawda.png", &sprComp.mySize);
+}</code></pre>
+				<pre><code data-noescape data-fragment-index="0" data-line-numbers="|3|4|5|6">void Init()
+{
+	testObj = new GameObject;
+	testObj->SetPosition({ 300, 300 });
+	SpriteComponent* spr = testObj->AddComponent&lt;SpriteComponent&gt;();
+	spr->SetSpritePath("../Assets/dawdwdawda.png");
+}</code></pre>
+			</section>
+			<section>
+				<pre><code data-noescape data-fragment-index="0" data-line-numbers="|3-4|7-8">void Update(float dt)
+{
+	gameState.transforms.GetComponent(testObj).pos =
+		{ 400.0f + 300.0f * factor, 300.f };
+
+	uint8_t color = uint8_t(factor * 255.0f);
+	gameState.sprites.GetComponent(testObj).myColor =
+		{ color, 0, uint8_t(255 - color) };
+}</code></pre>
+				<pre><code data-noescape data-fragment-index="0" data-line-numbers="|3-4|7-8">void Update(float dt)
+{
+	testObj->SetPosition(
+		{ 400.0f + 300.0f * factor, 300.f });
+
+	uint8_t color = uint8_t(factor * 255.0f);
+	testObj->GetComponent&lt;SpriteComponent>()
+		->SetColor({ color, 0, uint8_t(255 - color) });
+}</code></pre>
+			</section>
+			<section data-transition="convex">
+				<h3>Några saker att ha i åtanke</h3>
+				<ul>
+					<li class="fragment">Det är inte antingen eller, hybrider finns och är vanliga för spelmotorer.</li>
+					<li class="fragment">Viktigt att bibehålla användarvänligheten för era kollegor.</li>
+					<li class="fragment">Det finns många olika lösningar; ingen är one-size-fits-all.</li>
+				</ul>
+			</section>
+			<section>
+				<h1>Resurser🤸🏻‍♀️</h1>
+			</section>
+			<section>
+				<h3>CppCon 2014: Mike Acton "Data-Oriented Design and C++"</h3>
+				<iframe width="560" height="315" src="https://www.youtube.com/embed/rX0ItVEVjHc" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+			</section>
+			<section>
+				<h3><a href="https://austinmorlan.com/posts/entity_component_system/">A Simple Entity Component System (ECS) [C++] - Austin Morlan</a></h3>
+			</section>
+			<section>
+				<h1><a href="https://github.com/skypjack/entt">EnTT</a></h1>
+			</section>
+			<section>
+				<h1>Frågor🤔</h1>
+			</section>
+			</div>
+		</div>
+
+		<script src="dist/reveal.js"></script>
+		<script src="plugin/notes/notes.js"></script>
+		<script src="plugin/markdown/markdown.js"></script>
+		<script src="plugin/highlight/highlight.js"></script>
+		<script>
+			// More info about initialization & config:
+			// - https://revealjs.com/initialization/
+			// - https://revealjs.com/config/
+			Reveal.initialize({
+				hash: true,
+
+				// Learn about plugins: https://revealjs.com/plugins/
+				plugins: [ RevealMarkdown, RevealHighlight, RevealNotes ]
+			});
+		</script>
+	</body>
+</html>
