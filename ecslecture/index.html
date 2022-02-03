@@ -218,7 +218,7 @@ protected:
 	std::vector&lt;class Component*&gt; myComponents;
 	v2f myPos;
 
-	static std::vector<GameObject*> ourGameObjects;
+	static std::vector&lt;GameObject*> ourGameObjects;
 };</code></pre>
 				</section>
 				<section data-transition="zoom">
@@ -372,8 +372,7 @@ void Update(float dt)
 {
 	GameObject::UpdateAll();
 	GameObject::RenderAll();
-							}
-						</code></pre>
+}</code></pre>
 						<img src="UpdateCallHierarchy.svg" class="fragment" data-fragment-index="0" width="500">
 					</div>
 				</section>
@@ -540,7 +539,7 @@ void Init()
 				</section>
 				<section>
 					<h3>Resultat</h3>
-					<img src="ComponentSystemInit.png">
+					<img src="ComponentSystemInit.PNG">
 				</section>
 				<section>
 					<h3>Uppdatera GameObject</h3>
@@ -569,7 +568,7 @@ void Init()
 					<h2>Entity-Component-System</h2>
 					<ul>
 						<li class="fragment">Inte samma sak som ett komponentsystem.</li>
-						<li class="fragment">Men som sagt, begreppen är inte huggna i sten och alla har olika meningar.</li>
+						<li class="fragment">Men som sagt, begreppen är inte huggna i sten och alla har olika meningar för olika personer.</li>
 						<li class="fragment">Definition från Designmönster för Spelutveckling.</li>
 					</ul>
 				</section>
@@ -654,7 +653,7 @@ class AssociativeArrayDO
 				<section data-transition="zoom"><h3>
 					Entities är IDn
 				</h3>
-				<pre><code data-noescape data-line-numbers="|">#include <stdint.h>
+				<pre><code data-noescape data-line-numbers="">#include &lt;stdint.h>
 using Entity = uint32_t;</code></pre>
 			</section>
 			<section>
@@ -1146,7 +1145,7 @@ void ComponentArray&lt;ComponentType>::UpdateEntitiesContainingComponent()
 			</section>
 			<section>
 				<h3>Components.hpp</h3>
-				<pre><code data-noescape data-line-numbers="|">struct TransformComponent
+				<pre><code data-noescape data-line-numbers="">struct TransformComponent
 {
 	v2f pos;
 };
@@ -1163,7 +1162,7 @@ struct SpriteComponent
 			</section>
 			<section>
 				<h3>SpriteSystem.h</h3>
-				<pre><code data-noescape data-line-numbers="|">namespace Systems
+				<pre><code data-noescape data-line-numbers="">namespace Systems
 {
 	void Sprite(
 		EntityManager* em,
