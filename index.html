@@ -50,18 +50,47 @@
     <nav id="navbar" class="navbar nav-menu">
       <ul>
         <li><a href="#hero" class="nav-item nav-link scrollto active"><i class="bx bx-home"></i> <span>Home</span></a></li>
-        <li><a href="#portfolio section" class="nav-item nav-link scrollto"><i class="bi bi-journal-code"></i> <span>Projects</span></a></li>
+        <li><a href="#portfoliosection" class="nav-item nav-link scrollto"><i class="bi bi-journal-code"></i> <span>Projects</span></a></li>
         <li><a href="#games" class="nav-item nav-link scrollto"><i class="bi bi-controller"></i> <span>Games</span></a></li>
-        <!-- <li><a href="#resume" class="nav-link scrollto"><i class="bx bx-file-blank"></i> <span>Resume</span></a></li>
-        <li><a href="#portfolio" class="nav-link scrollto"><i class="bx bx-book-content"></i> <span>Portfolio</span></a></li>
-        <li><a href="#services" class="nav-link scrollto"><i class="bx bx-server"></i> <span>Services</span></a></li>
-        <li><a href="#contact" class="nav-link scrollto"><i class="bx bx-envelope"></i> <span>Contact</span></a></li> -->
+        <li><a href="#about" class="nav-item nav-link scrollto"><i class="bi bi-file-person"></i> <span>About</span></a></li>
+        <li><a href="#contact" class="nav-item nav-link scrollto"><i class="bi bi-telephone"></i> <span>Contact</span></a></li>
       </ul>
     </nav><!-- .nav-menu -->
 
   </header><!-- End Header -->
 
   <!-- ======= Hero Section ======= -->
+  
+<video id="background-video" autoplay loop muted poster="assets/img/Poster.PNG">
+  <source src="assets/img/web-bg.mp4" type="video/mp4">
+</video>
+  <section id="hero" class="d-flex flex-column justify-content-center">
+    <div class="container" data-aos="zoom-in" data-aos-delay="100">
+      <h1>Hey there,<br>I'm <span class="bouncyboi">E</span><span class="bouncyboi">l</span><span class="bouncyboi">i</span><span class="bouncyboi">a</span>,</h1>
+      <p>Game programmer specializing in <span class="typed" data-typed-items="Engine and Tools"></span></p>
+      <a class="btn btn-outline-primary btn-lg" style="margin-top: 20px;" href="#portfoliosection">My projects</a>
+    </div>
+  </section><!-- End Hero -->
+
+  <!-- ======= Portfolio Section ======= -->
+  <div id="portfoliosection">
+  <section id="ecs" class="d-flex flex-column justify-content-center">
+    <div class="container" data-aos="fade-up" data-aos-delay="100">
+      <h1>Entity-Component-System</h1>
+      <p>Data-oriented handling of objects in the game world</p>
+      <a href="portfolio-details.html" class="portfolio-details-lightbox" data-glightbox="type: external" title="Portfolio Details"><button class="btn btn-outline-primary btn-lg">Read my article</button></a>
+    </div>
+  </section>
+  <section id="editor" class="d-flex flex-column justify-content-center">
+    <div class="container" data-aos="fade-up" data-aos-delay="100">
+      <h1>Editor</h1>
+      <p>Engine level editor, made using <i>Dear ImGui</i>, with multi-user support</p>
+      <a href="portfolio-details.html" class="portfolio-details-lightbox" data-glightbox="type: external" title="Portfolio Details"><button class="btn btn-outline-primary btn-lg">Read my article</button></a>
+    </div>
+  </section><!-- Portfolio End -->
+</div>
+
+<div id="games">
   <div class="area" >
     <ul class="circles">
             <li></li>
@@ -76,33 +105,103 @@
             <li></li>
     </ul>
 </div >
-<video id="background-video" autoplay loop muted poster="https://assets.codepen.io/6093409/river.jpg">
-  <source src="assets/img/loaofootage.mp4" type="video/mp4">
-</video>
-  <section id="hero" class="d-flex flex-column justify-content-center">
-    <div class="container" data-aos="zoom-in" data-aos-delay="100">
-      <h1>Hey there,<br>I'm <span class="bouncyboi">E</span><span class="bouncyboi">l</span><span class="bouncyboi">i</span><span class="bouncyboi">a</span>,</h1>
-      <p>Game programmer specializing in <span class="typed" data-typed-items="Engine and Tools"></span></p>
-      <a class="btn btn-outline-primary btn-lg" style="margin-top: 20px;" href="#portfolio section">My projects</a>
+  <section id="toysrsus" class="d-flex flex-column justify-content-center">
+    <div class="container" data-aos="fade-up" data-aos-delay="100">
+      <h1>Game Projects</h1>
     </div>
-  </section><!-- End Hero -->
-
-  <!-- ======= Portfolio Section ======= -->
-  <div id="portfolio section">
-  <section id="ecs" class="d-flex flex-column justify-content-center">
-    <div class="container" data-aos="fade-up" data-aos-delay="100">
-      <h1>Entity-Component-System</h1>
-      <p>Data-oriented handling of objects in the game world</p>
-      <a href="portfolio-details.html" class="portfolio-details-lightbox" data-glightbox="type: external" title="Portfolio Details"><button class="btn btn-outline-primary btn-lg">Read my article</button></a>
-      </div>
+    <div class="row" data-aos="fade-up" data-aos-delay="100">
+      <table class="table table-borderless">
+          <tr>
+            <th><h3>Toys "R" Sus</h3></th>
+          </tr>
+          <tr class="">
+            <td><p>Details:</p>
+            <ul>
+              <li>First-person online multiplayer party game, inspired by <i>Among Us</i></li>
+              <li>14 week development working 20h a week with a team of 5 programmers, 3 level designers and 4 artists</li>
+              <li>Made in our own DirectX11 game engine</li>
+            </ul></td>
+            <td rowspan="2" class="toysrsus-video-desktop"><video class="toysrsus-video" autoplay loop muted poster="assets/img/Poster.PNG">
+              <source src="assets/img/web-bg.mp4" type="video/mp4">
+            </video></td>
+          </tr>
+          <tr>
+            <td><p>My contributions:</p>
+            <ul class="">
+              <li class="">Entity-Component-System implementation</li>
+              <li class="">Multi-threaded update-loop architecture for our engine</li>
+              <li class="">Engine level editor with multi-user editing</li>
+              <li class="">Node-based scripting language</li>
+              <li class="">Serialization/Reflections system</li>
+              <li class="">Level file format</li>
+            </ul>
+          </td>
+          </tr>
+          <tr class="toysrsus-video-mobile ">
+            <td rowspan="2"><video class="toysrsus-video" autoplay loop muted poster="assets/img/Poster.PNG">
+              <source src="assets/img/web-bg.mp4" type="video/mp4">
+            </video></td>
+          </tr>
+          <tr><th colspan="2"><div class="dividisor"></div></th></tr>
+          <tr>
+            <th><h3 style="padding-top: 10px;">Loa of Death</h3></th>
+          </tr>
+          <tr class="">
+            <td rowspan="2" class="toysrsus-video-desktop"><video class="toysrsus-video" autoplay loop muted poster="assets/img/Poster.PNG">
+              <source src="assets/img/web-bg.mp4" type="video/mp4">
+            </video></td>
+            <td><p>Details:</p>
+            <ul>
+              <li>Hack-and-slash action game, inspired by <i>Diablo 3</i></li>
+              <li>14 week development with a team of 5 programmers, 2 level designers and 4 artists</li>
+              <li>Built from scratch in our own DirectX11 game engine</li>
+            </ul></td>
+          </tr>
+          <tr>
+            <td><p>My contributions:</p>
+            <ul>
+              <li>Entity-Component-System implementation</li>
+              <li>Text rendering</li>
+              <li>Data-driven and data-oriented UI system</li>
+              <li>Integrated UI editor tool using Dear ImGui</li>
+            </ul>
+          </td>
+          </tr>
+          <tr class="toysrsus-video-mobile ">
+            <td rowspan="2"><video class="toysrsus-video" autoplay loop muted poster="assets/img/Poster.PNG">
+              <source src="assets/img/web-bg.mp4" type="video/mp4">
+            </video></td>
+          </tr>
+          <tr><th colspan="2"><div class="dividisor"></div></th></tr>
+          <tr>
+            <th><h3 style="padding-top: 10px;">The Warden</h3></th>
+          </tr>
+          <tr class="">
+            <td><p>Details:</p>
+            <ul>
+              <li>Atmospheric platform game</li>
+              <li>8 week development with a team of 5 programmers, 3 level designers and 4 artists</li>
+              <li>Made in</li>
+            </ul></td>
+            <td rowspan="2" class="toysrsus-video-desktop"><video class="toysrsus-video" autoplay loop muted poster="assets/img/Poster.PNG">
+              <source src="assets/img/web-bg.mp4" type="video/mp4">
+            </video></td>
+          </tr>
+          <tr>
+            <td><p>My contributions:</p>
+            <ul class="">
+              <li class="">All dem game</li>
+            </ul>
+          </td>
+          </tr>
+          <tr class="toysrsus-video-mobile ">
+            <td rowspan="2"><video class="toysrsus-video" autoplay loop muted poster="assets/img/Poster.PNG">
+              <source src="assets/img/web-bg.mp4" type="video/mp4">
+            </video></td>
+          </tr>
+      </table>
+    </div>
   </section>
-  <section id="editor" class="d-flex flex-column justify-content-center">
-    <div class="container" data-aos="fade-up" data-aos-delay="100">
-      <h1>Editor</h1>
-      <p>Engine level editor, made using Dear ImGui</p>
-      <a href="portfolio-details.html" class="portfolio-details-lightbox" data-glightbox="type: external" title="Portfolio Details"><button class="btn btn-outline-primary btn-lg">Read my article</button></a>
-      </div>
-  </section><!-- Portfolio End -->
 </div>
 
   <script> /*
