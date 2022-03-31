@@ -612,9 +612,12 @@ button {
   width: 40vw;
   margin-right: 5px !important;
 }
-.toysrsus-video-mobile, .toysrsus-video-desktop {
+}
+.video-right {
   text-align: right;
 }
+.video-left {
+  text-align: left;
 }
 
 

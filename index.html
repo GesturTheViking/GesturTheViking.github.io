@@ -107,21 +107,22 @@
 </div >
   <section id="toysrsus" class="d-flex flex-column justify-content-center">
     <div class="container" data-aos="fade-up" data-aos-delay="100">
-      <h1>Game Projects</h1>
+      <h1 style="text-align: center;">Group Game Projects</h1>
     </div>
     <div class="row" data-aos="fade-up" data-aos-delay="100">
       <table class="table table-borderless">
+        <!-- Toys R Sus -->
           <tr>
-            <th><h3>Toys "R" Sus</h3></th>
+            <th><h3 style="color: #EDB518;">Toys "R" Sus</h3></th>
           </tr>
           <tr class="">
             <td><p>Details:</p>
             <ul>
               <li>First-person online multiplayer party game, inspired by <i>Among Us</i></li>
-              <li>14 week development working 20h a week with a team of 5 programmers, 3 level designers and 4 artists</li>
-              <li>Made in our own DirectX11 game engine</li>
+              <li>14 week development (20h/week) with a team of 5 programmers, 3 level designers and 4 artists</li>
+              <li>Made in our own C++ and DirectX11 game engine</li>
             </ul></td>
-            <td rowspan="2" class="toysrsus-video-desktop"><video class="toysrsus-video" autoplay loop muted poster="assets/img/Poster.PNG">
+            <td rowspan="2" class="toysrsus-video-desktop video-right"><video class="toysrsus-video" autoplay loop muted poster="assets/img/Poster.PNG">
               <source src="assets/img/web-bg.mp4" type="video/mp4">
             </video></td>
           </tr>
@@ -137,14 +138,15 @@
             </ul>
           </td>
           </tr>
-          <tr class="toysrsus-video-mobile ">
+          <tr class="toysrsus-video-mobile">
             <td rowspan="2"><video class="toysrsus-video" autoplay loop muted poster="assets/img/Poster.PNG">
               <source src="assets/img/web-bg.mp4" type="video/mp4">
             </video></td>
           </tr>
+          <!-- Loa of Death -->
           <tr><th colspan="2"><div class="dividisor"></div></th></tr>
           <tr>
-            <th><h3 style="padding-top: 10px;">Loa of Death</h3></th>
+            <th><h3 style="padding-top: 10px; color: #EDB518;">Loa of Death</h3></th>
           </tr>
           <tr class="">
             <td rowspan="2" class="toysrsus-video-desktop"><video class="toysrsus-video" autoplay loop muted poster="assets/img/Poster.PNG">
@@ -153,8 +155,8 @@
             <td><p>Details:</p>
             <ul>
               <li>Hack-and-slash action game, inspired by <i>Diablo 3</i></li>
-              <li>14 week development with a team of 5 programmers, 2 level designers and 4 artists</li>
-              <li>Built from scratch in our own DirectX11 game engine</li>
+              <li>14 week development (20h/week) with a team of 5 programmers, 2 level designers and 4 artists</li>
+              <li>Built from scratch using C++ and DirectX11</li>
             </ul></td>
           </tr>
           <tr>
@@ -172,25 +174,94 @@
               <source src="assets/img/web-bg.mp4" type="video/mp4">
             </video></td>
           </tr>
+          <!-- The Warden -->
           <tr><th colspan="2"><div class="dividisor"></div></th></tr>
           <tr>
-            <th><h3 style="padding-top: 10px;">The Warden</h3></th>
+            <th><h3 style="padding-top: 10px; color: #EDB518;">The Warden</h3></th>
           </tr>
           <tr class="">
             <td><p>Details:</p>
             <ul>
               <li>Atmospheric platform game</li>
-              <li>8 week development with a team of 5 programmers, 3 level designers and 4 artists</li>
-              <li>Made in</li>
+              <li>8 week development with a team of 5 programmers, 2 level designers and 4 artists</li>
+              <li>Made in TGA2D, the school's in-house C++ rendering framework</li>
             </ul></td>
-            <td rowspan="2" class="toysrsus-video-desktop"><video class="toysrsus-video" autoplay loop muted poster="assets/img/Poster.PNG">
+            <td rowspan="2" class="toysrsus-video-desktop video-right"><video class="toysrsus-video" autoplay loop muted poster="assets/img/Poster.PNG">
               <source src="assets/img/web-bg.mp4" type="video/mp4">
             </video></td>
           </tr>
           <tr>
             <td><p>My contributions:</p>
             <ul class="">
-              <li class="">All dem game</li>
+              <li class="">GameObject, Component & Scene system</li>
+              <li class="">Physics system, with support for AABB, circle and convex polygons collision shapes</li>
+              <li class="">Menu UI, with controller navigation support</li>
+              <li class="">Event callback system</li>
+              <li class="">Various data-driven tools</li>
+            </ul>
+          </td>
+          </tr>
+          <tr class="toysrsus-video-mobile ">
+            <td rowspan="2"><video class="toysrsus-video" autoplay loop muted poster="assets/img/Poster.PNG">
+              <source src="assets/img/web-bg.mp4" type="video/mp4">
+            </video></td>
+          </tr>
+          <!-- Stakeout -->
+          <tr><th colspan="2"><div class="dividisor"></div></th></tr>
+          <tr>
+            <th><h3 style="padding-top: 10px; color: #EDB518;">Stakeout</h3></th>
+          </tr>
+          <tr class="">
+            <td rowspan="2" class="toysrsus-video-desktop"><video class="toysrsus-video" autoplay loop muted poster="assets/img/Poster.PNG">
+              <source src="assets/img/web-bg.mp4" type="video/mp4">
+            </video></td>
+            <td><p>Details:</p>
+            <ul>
+              <li>Side-scrolling multi-directional shoot 'em up game, inspired by <i>Geometry Wars</i></li>
+              <li>8 week development (20h/week) with a team of 5 programmers, 3 level designers and 4 artists</li>
+              <li>Made in TGA2D, the school's in-house C++ rendering framework</li>
+            </ul></td>
+          </tr>
+          <tr>
+            <td><p>My contributions:</p>
+            <ul>
+              <li>GameObject, Component & Scene system</li>
+              <li>Tilemap importing from JSON</li>
+              <li>Physics and collision system, with support for AABB and circle collision shapes</li>
+              <li>Data managing system, for easy serialization to JSON</li>
+            </ul>
+          </td>
+          </tr>
+          <tr class="toysrsus-video-mobile ">
+            <td rowspan="2"><video class="toysrsus-video" autoplay loop muted poster="assets/img/Poster.PNG">
+              <source src="assets/img/web-bg.mp4" type="video/mp4">
+            </video></td>
+          </tr>
+          <!-- Distortion -->
+          <tr><th colspan="2"><div class="dividisor"></div></th></tr>
+          <tr>
+            <th><h3 style="padding-top: 10px; color: #EDB518;">Distortion</h3></th>
+          </tr>
+          <tr class="">
+            <td><p>Details:</p>
+            <ul>
+              <li>Action RPG game, inspired by <i>Hyper Light Drifter</i></li>
+              <li>8 week development with a team of 5 programmers, 3 level designers and 4 artists</li>
+              <li>Made in TGA2D, the school's in-house C++ rendering framework</li>
+            </ul></td>
+            <td rowspan="2" class="toysrsus-video-desktop video-right"><video class="toysrsus-video" autoplay loop muted poster="assets/img/Poster.PNG">
+              <source src="assets/img/web-bg.mp4" type="video/mp4">
+            </video></td>
+          </tr>
+          <tr>
+            <td><p>My contributions:</p>
+            <ul class="">
+              <li class="">GameObject, Component & Scene system</li>
+              <li class="">Chunk-based dynamic loading of tile-based open world</li>
+              <li class="">Multi-threading: double-buffered rendering, asynchronous file loading & concurrent pathfinding</li>
+              <li class="">Enemy and boss AI</li>
+              <li class="">Particle system</li>
+              <li class="">Various tools including: serialization system for player, enemy and boss values; particle editor, sequencing tool for AI behavior</li>
             </ul>
           </td>
           </tr>
@@ -839,8 +910,8 @@
       <h3>Elia Rönning</h3>
       <p>Game Programmer</p>
       <div class="social-links">
-        <a href="#" class="github"><i class="bx bxl-github"></i></a>
-        <a href="#" class="linkedin"><i class="bx bxl-linkedin"></i></a>
+        <a href="https://github.com/GesturTheViking" class="github"><i class="bx bxl-github"></i></a>
+        <a href="https://www.linkedin.com/in/elia-r%C3%B6nning-6804a2221/" class="linkedin"><i class="bx bxl-linkedin"></i></a>
       </div>
       <div class="credits">
         <!-- All the links in the footer should remain intact. -->
