@@ -760,6 +760,8 @@ video {
   padding-left: 10px;
   padding-right: 10px;
   display: inline-block;
+  max-width: 487px;
+  max-height: 700px;
 }
 
 /* Contact */
