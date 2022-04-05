@@ -788,7 +788,14 @@ video {
 #contact p {
   font-size: 20px;
 }
-#contact a, #about a {
+#about a {
+  color: #EAEAEA;
+  text-decoration: underline;
+}
+#about #pdf-links a {
+  color: #EDB518 !important;
+}
+#contact a {
   color: #EAEAEA;
   text-decoration: underline;
 }
