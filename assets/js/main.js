@@ -208,10 +208,23 @@
   /**
    * Initiate portfolio details lightbox 
    */
-  const portfolioDetailsLightbox = GLightbox({
-    selector: '.portfolio-details-lightbox',
+  const portfolioDetailsLightbox1 = GLightbox({
+    selector: '.portfolio-details-lightbox1',
     width: '90%',
-    height: '90vh'
+    height: '90vh',
+    touchNavigation: false
+  });
+  const portfolioDetailsLightbox2 = GLightbox({
+    selector: '.portfolio-details-lightbox2',
+    width: '90%',
+    height: '90vh',
+    touchNavigation: false
+  });
+  const portfolioDetailsLightbox3 = GLightbox({
+    selector: '.portfolio-details-lightbox3',
+    width: '90%',
+    height: '90vh',
+    touchNavigation: false
   });
 
   /**

@@ -1,0 +1,43 @@
+#article {
+    color: black;
+}
+
+body {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 90vw;
+    height: 90vh;
+    background-color: #EAEAEA;
+}
+
+h1 {
+    font-size: 64px;
+    font-weight: 700;
+    line-height: 56px;
+    color: #EDB518;
+    text-align: center;
+    margin-bottom: 15px;
+}
+
+#article p {
+  font-size: 17px;
+  font-family: "Inter", sans-serif;
+  margin-top: 17px;
+}
+
+#article img {
+    width: 70vw;
+    height: auto;
+    display: inline-block;
+}
+
+#article h3 {
+    padding-top: 15px;
+    color: #EDB518;
+}
+
+.article-img-container {
+    text-align: center;
+    padding: 17px;
+}
