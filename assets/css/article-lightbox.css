@@ -39,6 +39,7 @@ h1 {
     width: 70vw;
     height: auto;
     display: inline-block;
+    max-width: 1140px;
 }
 
 #article h3 {
