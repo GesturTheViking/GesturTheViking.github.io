@@ -66,3 +66,8 @@ code {
 video {
     max-width: 100%;
 }
+
+.carousel-inner p {
+  text-shadow: #333333aa 2px 2px;
+  color: #EDB518;
+}
