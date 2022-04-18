@@ -158,7 +158,18 @@ private:
 
         <h3>Component</h3>
         <p>
-          Components are implemented as C-style structs, to make sure they only consist of data. To store the components, I wrote a class called <code>ComponentList</code>, which takes a template argument of which component it stores. Internally, the class has an array of components of size <code>MAX_ENTITIES</code>. This array is always kept dense, to make sequential access fast. This is accomplished by swapping a component for the last component in the list, and then decrementing the size, when removing a component. This works fine for sequential access. However, for random access I needed a different approach, since components don't map to their entity IDs and that they can move in memory. I decided to implement a sparse set-like data structure to handle random access. I added two extra arrays to the class: one to map entity IDs to component indices and the other for mapping component indices to entity IDs.
+          Components are implemented as C-style structs, to make sure they only consist of data. This is an example from <i>Toys or Sus</i>:</p>
+          <pre><code class="language-c++">struct SpotLightComponent
+{
+  v3f offset;
+  CU::Color color;
+  float range = 5.0f;
+  float angle = 70.0f;
+  float baseIntensity = 1.0f;
+  LightFlags shadowType = LightFlags_NoShadow;
+};</code></pre>
+          
+          <p>To store the components, I wrote a class called <code>ComponentList</code>, which takes a template argument of which component it stores. Internally, the class has an array of components of size <code>MAX_ENTITIES</code>. This array is always kept dense, to make sequential access fast. This is accomplished by swapping a component for the last component in the list, and then decrementing the size, when removing a component. This works fine for sequential access. However, for random access I needed a different approach, since components don't map to their entity IDs and that they can move in memory. I decided to implement a sparse set-like data structure to handle random access. I added two extra arrays to the class: one to map entity IDs to component indices and the other for mapping component indices to entity IDs.
         </p>
         <p><b>
           Adding a component:
@@ -222,7 +233,7 @@ inline void ComponentList&lt;ComponentType&gt;::RemoveComponent(Entity anEntity)
         </div>
         <p>Full source code can be found on <a href="https://github.com/GesturTheViking/EliaECSDemo" target="_blank">GitHub</a>.</p>
         <h3>Future improvements</h3>
-        <p>The following are some improvements to the ECS I would like to implement in the future:</p>
+        <p>These are some improvements to the ECS I would like to implement in the future:</p>
         <ul>
           <li><p>Support for component lists of different sizes, not just <code>MAX_ENTITIES</code>. Since I'm using a sparse set, this would not be difficult to implement and it would save a lot of memory when only a few components of a certain type are needed.</p></li>
           <li><p>Similarly, I would like to implement support for growing component lists, when I don't know at compile time how many components of a type I'm going to need. For instance, when behavior is defined at runtime through visual scripting.</p></li>
