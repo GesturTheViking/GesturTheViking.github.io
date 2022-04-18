@@ -98,7 +98,7 @@
             <li><p>Data (components) and behavior (systems) needed to always be clearly separated.</p></li>
             <li><p>Components needed to be packed in memory to optimize the cache.</p></li>
             <li><p>Systems needed to update components type-wise rather than entity-wise and it needed to be apparent which components each system updated so that data transformations could easily be performed asynchronously.</p></li>
-            <li><p>Most importantly, the API needed to be easy to use for the other programmers, who hadn't been exposed to data-oriented programming before.</p></li>
+            <li><p>Most importantly, the interface needed to be easy to use for the other programmers, who hadn't been exposed to data-oriented programming before.</p></li>
           </ul>
         </p>
         <h3>Entity</h3>
@@ -168,7 +168,7 @@ inline ComponentType& ComponentList&lt;ComponentType&gt;::AddComponent(Entity an
 {
   assert(anEntity < MAX_ENTITIES && "Entity out of range.");
 
-  uint32_t componentIndex = myComponentsSize++;
+  const uint32_t componentIndex = myComponentsSize++;
   myComponents[componentIndex] = ComponentType();
   myMapEntityToComponent[anEntity] = componentIndex;
   myMapComponentToEntity[componentIndex] = anEntity;
@@ -182,7 +182,7 @@ inline void ComponentList&lt;ComponentType&gt;::RemoveComponent(Entity anEntity)
   assert(anEntity < MAX_ENTITIES && "Entity out of range.");
 
   --myComponentsSize;
-  uint32_t componentIndex = myMapEntityToComponent[anEntity];
+  const uint32_t componentIndex = myMapEntityToComponent[anEntity];
   myComponents[componentIndex] = myComponents[myComponentsSize];
   myMapEntityToComponent[myMapComponentToEntity[myComponentsSize]] = componentIndex;
   myMapComponentToEntity[componentIndex] = myMapComponentToEntity[myComponentsSize];
@@ -211,11 +211,11 @@ inline void ComponentList&lt;ComponentType&gt;::RemoveComponent(Entity anEntity)
 }</code></pre>
         <h3>Result</h3>
         <p>
-          The ECS has been used in two games: <i>Loa of Death</i> and <i>Toys or Sus</i>. In both games it has performed very well, and has been received well from the other programmers who were able to pick it up and start using it with minimal friction. A big part of ECS which I haven't touched on in this article is that it's trivial to make data-driven, since all objects are defined at runtime. I go into more detail on how I did this for <i>Toys or Sus</i> in the article <i>Editor</i>.
+          The ECS has been used in two games: <i>Loa of Death</i> and <i>Toys or Sus</i>. In both games it has performed impeccably, and has been received well from the other programmers who were able to pick it up and start using it with minimal friction. A big part of ECS which I haven't touched on in this article is that it's trivial to make data-driven, since all objects are defined at runtime. I go into more detail on how I did this for <i>Toys or Sus</i> in the article <i>Editor</i>.
         </p>
         <h3 id="demo">Demo</h3>
         <p>
-          To showcase the ECS in action, I put together a quick demo using <i><a href="https://www.raylib.com/" target="_blank">raylib</a></i>, which I compiled to <i>WebAssembly</i> using the <i><a href="https://emscripten.org/" target="_blank">Emscripten</a></i> compiler. Rotate the camera by holding down left/right click and moving the mouse and zoom in and out using the scroll wheel. You can add and remove entities using the buttons to the right.</i>
+          To showcase the ECS in action, I put together a small demo using <i><a href="https://www.raylib.com/" target="_blank">raylib</a></i>, which I compiled to <i>WebAssembly</i> using the <i><a href="https://emscripten.org/" target="_blank">Emscripten</a></i> compiler. Rotate the camera by holding down left/right click and moving the mouse and zoom in and out using the scroll wheel. You can add and remove entities using the buttons to the right.</i>
         </p>
         <div class="iframe-container">
           <iframe src="game.html" width="800" height="450"></iframe>
