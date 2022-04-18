@@ -5,7 +5,7 @@
   <meta charset="utf-8">
   <meta content="width=device-width, initial-scale=1.0" name="viewport">
 
-  <title>Portfolio Details - Personal Bootstrap Template</title>
+  <title>ECS Article</title>
   <meta content="" name="description">
   <meta content="" name="keywords">
 
@@ -14,7 +14,13 @@
   <link href="assets/img/apple-touch-icon.png" rel="apple-touch-icon">
 
   <!-- Google Fonts -->
-  <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Raleway:300,300i,400,400i,500,500i,600,600i,700,700i|Poppins:300,300i,400,400i,500,500i,600,600i,700,700i" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Arimo:300,300i,400,400i,600,600i,700,700i|Raleway:300,300i,400,400i,500,500i,600,600i,700,700i|Poppins:300,300i,400,400i,500,500i,600,600i,700,700i&display=swap" rel="stylesheet"> 
+  <link href="https://fonts.googleapis.com/css2?family=Dosis:wght@200&display=swap" rel="stylesheet"> 
+  <link href="https://fonts.googleapis.com/css2?family=Rampart+One&display=swap" rel="stylesheet"> 
+  <link href="https://fonts.googleapis.com/css2?family=Bungee+Outline&display=swap" rel="stylesheet"> 
+  <link href="https://fonts.googleapis.com/css2?family=Alatsi&family=Chonburi&family=Duru+Sans&family=Gugi&family=Inter:wght@100;200;300;400;500;600;700;800;900&family=Rammetto+One&display=swap" rel="stylesheet"> 
 
   <!-- Vendor CSS Files -->
   <link href="assets/vendor/aos/aos.css" rel="stylesheet">
@@ -23,6 +29,12 @@
   <link href="assets/vendor/boxicons/css/boxicons.min.css" rel="stylesheet">
   <link href="assets/vendor/glightbox/css/glightbox.min.css" rel="stylesheet">
   <link href="assets/vendor/swiper/swiper-bundle.min.css" rel="stylesheet">
+
+  <link rel="stylesheet"
+  href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/11.5.1/styles/default.min.css">
+  <link rel="stylesheet" href="assets/css/devibeans.css">
+  <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/11.5.1/highlight.min.js"></script>
+  <script>hljs.highlightAll();</script>
 
   <!-- Template Main CSS File -->
   <link href="assets/css/style.css" rel="stylesheet">
@@ -36,12 +48,186 @@
   ======================================================== -->
 </head>
 
-<body>
+<body  style="margin: 0; padding: 0;">
 
   <main id="main">
     <section id="article" class="d-flex flex-column justify-content-center">
       <div class="container">
-        <h1>WIP</h1>
+        <h1>
+          Entity-Component-System
+        </h1>
+        <!-- <p>
+          Intro - quick definition of ECS, about my OOPD-based component system, why I wanted ECS & advantages (point list)
+<br><br>
+          Designing the EntityService class, keeping track of IDs, hierarchy
+<br><br>
+          Designing the ComponentArray class - finding best way to iterate components
+<br><br>
+          Quick overview of systems, integrating threading
+<br><br>
+          Showcasing the demo
+<br><br>
+          Possible future performance improvements
+        </p> -->
+        <p>
+          During my first year at <i>The Game Assembly</i>, I developed a component system similar to the one in <i>Unity</i> for handling objects in the game world. It allowed for game objects to be defined through composition over inheritance at runtime, which made development a lot more streamlined. The system was used for all three games I took part in developing during the second semester of the education, and was even used by another group for one of their projects. However, despite its success, I decided to deviate from traditional object-oriented component systems when it came down to writing an engine from scratch for the game <i>Loa of Death</i>, and instead I developed an Entity-Component-System (ECS) solution. In this article, I will be referring to object-oriented component systems like the one Unity has as <i>component systems</i>, and data-oriented component systems as <i>ECS</i>.
+        </p>
+        <p>
+          The reasons for moving away from component systems were:
+          <ul>
+            <li><p>Despite being based on principles of composition over inheritance, the components themselves still inherited from a base class. This made them a lot more difficult to debug, since their type could be ambiguous.</p></li>
+            <li><p>Behavior was implemented on the components themselves through virtual functions. This, in combination with the fact that components were updated object by object instead of component by component, meant that frequent instruction cache misses were inevitable.</p></li>
+            <li><p>The components pertaining to an object were stored through base class pointers held in a list in that object, meaning that components had to be either individually heap-allocated or pooled according to type. This meant that frequent data cache misses were also inevitable.</p></li>
+          </ul>
+        </p>
+        <p>
+          ECS solved these problems through:
+          <ul>
+            <li><p>Being based on data-oriented principles, meaning that data is treated as data and not abstracted away behind objects.</p></li>
+            <li><p>The data and the behavior are always separated clearly in the code, making optimization and debugging easy.</p></li>
+            <li><p>Components are pooled in memory minimizing the amount of cache misses.</p></li>
+          </ul>
+        </p>
+
+        <h3>Design</h3>
+        <p>
+          When I started designing my ECS I came up with a list of requirements it had to meet:
+          <ul>
+            <li><p>Entities needed to be IDs, so that raw pointers to objects wouldn't be thrown around.</p></li>
+            <li><p>Managing entities and components needed to always be quick and have a time complexity of <i>O(1)</i> so that such operations would perform reliably and predictably.</p></li>
+            <li><p>Data (components) and behavior (systems) needed to always be clearly separated.</p></li>
+            <li><p>Components needed to be packed in memory to optimize the cache.</p></li>
+            <li><p>Systems needed to update components type-wise rather than entity-wise and it needed to be apparent which components each system updated so that data transformations could easily be performed asynchronously.</p></li>
+            <li><p>Most importantly, the API needed to be easy to use for the other programmers, who hadn't been exposed to data-oriented programming before.</p></li>
+          </ul>
+        </p>
+        <h3>Entity</h3>
+        <pre><code class="language-c++">using Entity = uint32_t;
+constexpr uint32_t MAX_ENTITIES = 768;</code></pre>
+          <p>
+          The entity itself is an ID. All data pertaining to an object is stored in its components, which the entity ID maps to.
+        </p>
+        <p>
+          To be able to create and destroy entities, I needed to keep track of which IDs were available. As described in the requirements list, IDs needed to be retrieved and subsequently returned with minimum overhead, to prevent FPS spikes when spawning/despawning large amounts of entities. I chose to solve this problem using a linked list-like data structure. I created a class to manage entities, <i>EntityService</i>, which contains an array of size <code>MAX_ENTITIES</code> and type <code>Entity</code>. Each index in the array corresponds to that entity ID and points to the next available ID. Lastly, a variable keeps track of the index of the first available entity in the list.
+        </p>
+        <pre><code class="language-c++">class EntityService
+{
+public:
+  // ...
+
+private:
+  Entity myAvailableEntitiesLL[MAX_ENTITIES];
+  Entity myFirstAvailableEntity;
+};</code></pre>
+        <p>
+          To get an available entity ID, I simply have to get the first available entity and then set <code>myFirstAvailableEntity</code> to the entity pointed to by the current first available one. To return an entity ID, I do the other way around. This methods means that creating and destroying objects is essentially just swapping some integers around in memory.
+        </p>
+        <p><b>
+          Get entity:
+        </b></p>
+        <div class="diagram-container">
+          <img class="diagram" src="assets/img/GetEntity1.svg" alt="">
+          <img class="diagram" src="assets/img/GetEntity2.svg" alt="">
+        </div>
+              <pre><code class="language-c++">Entity EntityService::GetEntity()
+{
+  assert(myFirstAvailableEntity < MAX_ENTITIES && "There are no available entities.");
+
+  Entity newEntity = myFirstAvailableEntity;
+  myFirstAvailableEntity = myAvailableEntitiesLL[myFirstAvailableEntity];
+
+  return newEntity;
+}</code></pre>
+<p>
+  <b>
+    Return entity:
+  </b>
+</p>
+<div class="diagram-container">
+  <img class="diagram" src="assets/img/ReturnEntity1.svg" alt="">
+  <img class="diagram" src="assets/img/ReturnEntity2.svg" alt="">
+</div>
+<pre><code class="language-c++">void EntityService::ReturnEntity(Entity anEntity)
+{
+  assert(anEntity < MAX_ENTITIES && "Entity out of range.");
+  assert(myAvailableEntitiesLL[anEntity] >= MAX_ENTITIES && "Attempting to return already available entity.");
+
+  myAvailableEntitiesLL[anEntity] = myFirstAvailableEntity;
+  myFirstAvailableEntity = anEntity;
+}</code></pre>
+
+        <h3>Component</h3>
+        <p>
+          Components are implemented as C-style structs, to make sure they only consist of data. To store the components, I wrote a class called <code>ComponentList</code>, which takes a template argument of which component it stores. Internally, the class has an array of components of size <code>MAX_ENTITIES</code>. This array is always kept dense, to make sequential access fast. This is accomplished by swapping a component for the last component in the list, and then decrementing the size, when removing a component. This works fine for sequential access. However, for random access I needed a different approach, since components don't map to their entity IDs and that they can move in memory. I decided to implement a sparse set-like data structure to handle random access. I added two extra arrays to the class: one to map entity IDs to component indices and the other for mapping component indices to entity IDs.
+        </p>
+        <p><b>
+          Adding a component:
+        </b></p>
+        <pre><code class="language-c++">template &lt;class ComponentType&gt;
+inline ComponentType& ComponentList&lt;ComponentType&gt;::AddComponent(Entity anEntity)
+{
+  assert(anEntity < MAX_ENTITIES && "Entity out of range.");
+
+  uint32_t componentIndex = myComponentsSize++;
+  myComponents[componentIndex] = ComponentType();
+  myMapEntityToComponent[anEntity] = componentIndex;
+  myMapComponentToEntity[componentIndex] = anEntity;
+
+  return myComponents[componentIndex];
+}</code></pre>
+<p><b>Removing a component:</b></p>
+<pre><code class="language-c++">template &lt;class ComponentType&gt;
+inline void ComponentList&lt;ComponentType&gt;::RemoveComponent(Entity anEntity)
+{
+  assert(anEntity < MAX_ENTITIES && "Entity out of range.");
+
+  --myComponentsSize;
+  uint32_t componentIndex = myMapEntityToComponent[anEntity];
+  myComponents[componentIndex] = myComponents[myComponentsSize];
+  myMapEntityToComponent[myMapComponentToEntity[myComponentsSize]] = componentIndex;
+  myMapComponentToEntity[componentIndex] = myMapComponentToEntity[myComponentsSize];
+}</code></pre>
+
+        <h3>System</h3>
+        <p>
+          Systems are just functions operating on <code>ComponentList</code> instances. Systems have no state of their own, and they cannot alter state outside their scope. Meaning that you always know that a system will only operate on the data that is provided in the function's argument list. This means that multiple systems can run asynchronously, without ever operating on the same data, as long as they take in different component lists.
+        </p><p>Here is a short example of a system from the <a href="#demo">demo</a>. This system operates on both <code>TransformComponent</code> and <code>ModelComponent</code> in the same loop, meaning that only one of them can be accessed sequentially and the other needs to be accessed through the random access pattern, utilizing the component-to-entity map in the <code>ComponentList</code> class to get which entity contains the current <code>ModelComponent</code> and then utilizing the entity-to-component map to in the transform list to get that entity's transform.
+        </p>
+
+        <pre><code class="language-c++">void Systems::Render(
+  ComponentList&lt;TransformComponent&gt;* someTransformComps,
+  ComponentList&lt;ModelComponent&gt;* someModelComps)
+{
+    ModelComponent* modelList = someModelComps->GetDenseComponents();
+
+    const uint32_t count = someModelComps->GetSize();
+    for (uint32_t compIndex = 0U; compIndex < count; ++compIndex)
+    {
+        const TransformComponent& trs = someTransformComps->GetComponent(someModelComps->GetEntityFromComponent(compIndex));
+        const ModelComponent& model = modelList[compIndex];
+
+        DrawModel(*ModelManager::GetModel(model.myModel), trs.myPosition, model.myScale, model.myColor);
+    }
+}</code></pre>
+        <h3>Result</h3>
+        <p>
+          The ECS has been used in two games: <i>Loa of Death</i> and <i>Toys or Sus</i>. In both games it has performed very well, and has been received well from the other programmers who were able to pick it up and start using it with minimal friction. A big part of ECS which I haven't touched on in this article is that it's trivial to make data-driven, since all objects are defined at runtime. I go into more detail on how I did this for <i>Toys or Sus</i> in the article <i>Editor</i>.
+        </p>
+        <h3 id="demo">Demo</h3>
+        <p>
+          To showcase the ECS in action, I put together a quick demo using <i><a href="https://www.raylib.com/" target="_blank">raylib</a></i>, which I compiled to <i>WebAssembly</i> using the <i><a href="https://emscripten.org/" target="_blank">Emscripten</a></i> compiler. Rotate the camera by holding down left/right click and moving the mouse and zoom in and out using the scroll wheel. You can add and remove entities using the buttons to the right.</i>
+        </p>
+        <div class="iframe-container">
+          <iframe src="game.html" width="800" height="450"></iframe>
+        </div>
+        <p>Full source code can be found on <a href="https://github.com/GesturTheViking/EliaECSDemo" target="_blank">GitHub</a>.</p>
+        <h3>Future improvements</h3>
+        <p>The following are some improvements to the ECS I would like to implement in the future:</p>
+        <ul>
+          <li><p>Support for component lists of different sizes, not just <code>MAX_ENTITIES</code>. Since I'm using a sparse set, this would not be difficult to implement and it would save a lot of memory when only a few components of a certain type are needed.</p></li>
+          <li><p>Similarly, I would like to implement support for growing component lists, when I don't know at compile time how many components of a type I'm going to need. For instance, when behavior is defined at runtime through visual scripting.</p></li>
+          <li><p>Integrate a job system, to make it even easier to multi-thread systems.</p></li>
+        </ul>
       </div>  
     </section>
   </main><!-- End #main -->
@@ -59,6 +245,16 @@
   <script src="assets/vendor/typed.js/typed.min.js"></script>
   <script src="assets/vendor/waypoints/noframework.waypoints.js"></script>
   <script src="assets/vendor/php-email-form/validate.js"></script>
+
+  <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+<!--BOOTSTRAP CSS-->
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+
+<script>
+  document.querySelector('video').playbackRate = 1.5;
+</script>
 
   <!-- Template Main JS File -->
   <script src="assets/js/main.js"></script>

@@ -71,3 +71,21 @@ video {
   text-shadow: #333333aa 2px 2px;
   color: #EDB518;
 }
+
+iframe {
+    display: inline-block;
+    max-width: 90vw;
+    max-height: min(0.5625 * 90vw);
+}
+.iframe-container {
+    text-align: center;
+}
+
+.diagram {
+    display: inline-block;
+    max-width: 90vw;
+}
+
+.diagram-container {
+    text-align: center;
+}

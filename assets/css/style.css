@@ -469,11 +469,13 @@ border-radius: 500px;
 #ecs {
   width: 100%;
   height: 60vh;
-  background: url("https://placekitten.com/1000/1000") top right no-repeat;
+  background: url("../img/ECSThumb.PNG") top right no-repeat;
   background-size: cover;
   position: relative;
   text-align: right;
+  background-position: center center;
 }
+
 @media (min-width: 992px) {
   #ecs {
     padding-left: 160px;
