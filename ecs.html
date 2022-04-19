@@ -70,7 +70,7 @@
           Possible future performance improvements
         </p> -->
         <p>
-          During my first year at <i>The Game Assembly</i>, I developed a component system similar to the one in <i>Unity</i> for handling objects in the game world. It allowed for game objects to be defined through composition over inheritance at runtime, which made development a lot more streamlined. The system was used for all three games I took part in developing during the second semester of the education, and was even used by another group for one of their projects. However, despite its success, I decided to deviate from traditional object-oriented component systems when it came down to writing an engine from scratch for the game <i>Loa of Death</i>, and instead I developed an Entity-Component-System (ECS) solution. In this article, I will be referring to object-oriented component systems like the one Unity has as <i>component systems</i>, and data-oriented component systems as <i>ECS</i>.
+          During my first year at <i>The Game Assembly</i>, I developed a component system similar to the one in <i>Unity</i> for handling objects in the game world. It allowed for game objects to be defined through composition over inheritance at runtime, which made development a lot more streamlined. The system was used for all three games I took part in developing during the second semester of the education, and was even used by another group for one of their projects. However, despite its success, I decided to deviate from traditional object-oriented component systems when it came down to writing an engine from scratch for the game <i>Loa of Death</i>, and instead opting for an Entity-Component-System (ECS) solution. In this article, I will be referring to object-oriented component systems like the one Unity has as <i>component systems</i>, and data-oriented component systems as <i>ECS</i>.
         </p>
         <p>
           The reasons for moving away from component systems were:
@@ -108,7 +108,7 @@ constexpr uint32_t MAX_ENTITIES = 768;</code></pre>
           The entity itself is an ID. All data pertaining to an object is stored in its components, which the entity ID maps to.
         </p>
         <p>
-          To be able to create and destroy entities, I needed to keep track of which IDs were available. As described in the requirements list, IDs needed to be retrieved and subsequently returned with minimum overhead, to prevent FPS spikes when spawning/despawning large amounts of entities. I chose to solve this problem using a linked list-like data structure. I created a class to manage entities, <i>EntityService</i>, which contains an array of size <code>MAX_ENTITIES</code> and type <code>Entity</code>. Each index in the array corresponds to that entity ID and points to the next available ID. Lastly, a variable keeps track of the index of the first available entity in the list.
+          To be able to create and destroy entities, I needed to keep track of which IDs were available. As described in the requirements list, IDs needed to be retrieved and subsequently returned with minimum overhead, to prevent FPS spikes when spawning/despawning large amounts of entities. I chose to solve this problem using a linked list-like data structure. I created a class to manage entities, <code>EntityService</code>, which contains an array of size <code>MAX_ENTITIES</code> and type <code>Entity</code>. Each index in the array corresponds to that entity ID and points to the next available ID. Lastly, a variable keeps track of the index of the first available entity in the list.
         </p>
         <pre><code class="language-c++">class EntityService
 {
@@ -120,7 +120,7 @@ private:
   Entity myFirstAvailableEntity;
 };</code></pre>
         <p>
-          To get an available entity ID, I simply have to get the first available entity and then set <code>myFirstAvailableEntity</code> to the entity pointed to by the current first available one. To return an entity ID, I do the other way around. This methods means that creating and destroying objects is essentially just swapping some integers around in memory.
+          To get an available entity ID, I simply have to get the first available entity and then set <code>myFirstAvailableEntity</code> to the entity pointed to by the current first available one. To return an entity ID, I do the reverse. This methods means that creating and destroying objects is essentially just swapping some integers around in memory.
         </p>
         <p><b>
           Get entity:
@@ -146,6 +146,7 @@ private:
 <div class="diagram-container">
   <img class="diagram" src="assets/img/ReturnEntity1.svg" alt="">
   <img class="diagram" src="assets/img/ReturnEntity2.svg" alt="">
+  <img class="diagram" src="assets/img/GetEntity1.svg" alt="">
 </div>
 <pre><code class="language-c++">void EntityService::ReturnEntity(Entity anEntity)
 {
@@ -169,7 +170,7 @@ private:
   LightFlags shadowType = LightFlags_NoShadow;
 };</code></pre>
           
-          <p>To store the components, I wrote a class called <code>ComponentList</code>, which takes a template argument of which component it stores. Internally, the class has an array of components of size <code>MAX_ENTITIES</code>. This array is always kept dense, to make sequential access fast. This is accomplished by swapping a component for the last component in the list, and then decrementing the size, when removing a component. This works fine for sequential access. However, for random access I needed a different approach, since components don't map to their entity IDs and that they can move in memory. I decided to implement a sparse set-like data structure to handle random access. I added two extra arrays to the class: one to map entity IDs to component indices and the other for mapping component indices to entity IDs.
+          <p>To store the components, I wrote a class called <code>ComponentList</code>, which takes a template argument of which component it stores. Internally, the class has an array of components of size <code>MAX_ENTITIES</code>. This array is always kept dense, to make sequential access fast. This is accomplished by, when removing a component, swapping it for the last component in the list, and then decrementing the size. This works fine for sequential access. However, for random access I needed a different approach, since components don't map to their entity IDs and that they can move in memory. I decided to implement a sparse set-like data structure to handle random access. I added two extra arrays to the class: one to map entity IDs to component indices and the other for mapping component indices to entity IDs.
         </p>
         <p><b>
           Adding a component:
@@ -202,7 +203,7 @@ inline void ComponentList&lt;ComponentType&gt;::RemoveComponent(Entity anEntity)
         <h3>System</h3>
         <p>
           Systems are just functions operating on <code>ComponentList</code> instances. Systems have no state of their own, and they cannot alter state outside their scope. Meaning that you always know that a system will only operate on the data that is provided in the function's argument list. This means that multiple systems can run asynchronously, without ever operating on the same data, as long as they take in different component lists.
-        </p><p>Here is a short example of a system from the <a href="#demo">demo</a>. This system operates on both <code>TransformComponent</code> and <code>ModelComponent</code> in the same loop, meaning that only one of them can be accessed sequentially and the other needs to be accessed through the random access pattern, utilizing the component-to-entity map in the <code>ComponentList</code> class to get which entity contains the current <code>ModelComponent</code> and then utilizing the entity-to-component map to in the transform list to get that entity's transform.
+        </p><p>Here is a short example of a system from the <a href="#demo">demo</a>. This system operates on both <code>TransformComponent</code> and <code>ModelComponent</code> in the same loop, meaning that only one of them can be accessed sequentially and the other needs to be accessed through the random access pattern, utilizing the component-to-entity map in the <code>ComponentList</code> class to get which entity contains the current <code>ModelComponent</code> and then looking up that entity's transform using the entity-to-component map in the transform list.
         </p>
 
         <pre><code class="language-c++">void Systems::Render(
