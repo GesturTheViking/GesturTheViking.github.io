@@ -76,7 +76,7 @@
           The reasons for moving away from component systems were:
           <ul>
             <li><p>Despite being based on principles of composition over inheritance, the components themselves still inherited from a base class. This made them a lot more difficult to debug, since their type could be ambiguous.</p></li>
-            <li><p>Behavior was implemented on the components themselves through virtual functions. This, in combination with the fact that components were updated object by object instead of component by component, meant that frequent instruction cache misses were inevitable.</p></li>
+            <li><p>Behavior was implemented on the components themselves through virtual functions. This, in combination with the fact that components were updated object-by-object instead of component-by-component, meant that frequent instruction cache misses were inevitable.</p></li>
             <li><p>The components pertaining to an object were stored through base class pointers held in a list in that object, meaning that components had to be either individually heap-allocated or pooled according to type. This meant that frequent data cache misses were also inevitable.</p></li>
           </ul>
         </p>
@@ -85,7 +85,7 @@
           <ul>
             <li><p>Being based on data-oriented principles, meaning that data is treated as data and not abstracted away behind objects.</p></li>
             <li><p>The data and the behavior are always separated clearly in the code, making optimization and debugging easy.</p></li>
-            <li><p>Components are pooled in memory minimizing the amount of cache misses.</p></li>
+            <li><p>Components are pooled in memory minimizing the number of cache misses.</p></li>
           </ul>
         </p>
 
@@ -93,7 +93,7 @@
         <p>
           When I started designing my ECS I came up with a list of requirements it had to meet:
           <ul>
-            <li><p>Entities needed to be IDs, so that raw pointers to objects wouldn't be thrown around.</p></li>
+            <li><p>Entities needed to be IDs so that raw pointers to objects wouldn't be thrown around.</p></li>
             <li><p>Managing entities and components needed to always be quick and have a time complexity of <i>O(1)</i> so that such operations would perform reliably and predictably.</p></li>
             <li><p>Data (components) and behavior (systems) needed to always be clearly separated.</p></li>
             <li><p>Components needed to be packed in memory to optimize the cache.</p></li>
@@ -120,7 +120,7 @@ private:
   Entity myFirstAvailableEntity;
 };</code></pre>
         <p>
-          To get an available entity ID, I simply have to get the first available entity and then set <code>myFirstAvailableEntity</code> to the entity pointed to by the current first available one. To return an entity ID, I do the reverse. This methods means that creating and destroying objects is essentially just swapping some integers around in memory.
+          To get an available entity ID, I simply have to get the first available entity and then set <code>myFirstAvailableEntity</code> to the entity pointed to by the current first available one. To return an entity ID, I do the reverse. This method means that creating and destroying objects is essentially just swapping some integers around in memory.
         </p>
         <p><b>
           Get entity:
@@ -170,7 +170,7 @@ private:
   LightFlags shadowType = LightFlags_NoShadow;
 };</code></pre>
           
-          <p>To store the components, I wrote a class called <code>ComponentList</code>, which takes a template argument of which component it stores. Internally, the class has an array of components of size <code>MAX_ENTITIES</code>. This array is always kept dense, to make sequential access fast. This is accomplished by, when removing a component, swapping it for the last component in the list, and then decrementing the size. This works fine for sequential access. However, for random access I needed a different approach, since components don't map to their entity IDs and that they can move in memory. I decided to implement a sparse set-like data structure to handle random access. I added two extra arrays to the class: one to map entity IDs to component indices and the other for mapping component indices to entity IDs.
+          <p>To store the components, I wrote a class called <code>ComponentList</code>, which takes a template argument of which component it stores. Internally, the class has an array of components of size <code>MAX_ENTITIES</code>. This array is always kept dense, to make sequential access fast. This is accomplished by, when removing a component, swapping it for the last component in the list, and then decrementing the size. This works fine for sequential access. However, for random access, I needed a different approach, since components don't map to their entity IDs and they can move in memory. I decided to implement a sparse set-like data structure to handle random access. I added two extra arrays to the class: one to map entity IDs to component indices and the other for mapping component indices to entity IDs.
         </p>
         <p><b>
           Adding a component:
@@ -203,7 +203,7 @@ inline void ComponentList&lt;ComponentType&gt;::RemoveComponent(Entity anEntity)
         <h3>System</h3>
         <p>
           Systems are just functions operating on <code>ComponentList</code> instances. Systems have no state of their own, and they cannot alter state outside their scope. Meaning that you always know that a system will only operate on the data that is provided in the function's argument list. This means that multiple systems can run asynchronously, without ever operating on the same data, as long as they take in different component lists.
-        </p><p>Here is a short example of a system from the <a href="#demo">demo</a>. This system operates on both <code>TransformComponent</code> and <code>ModelComponent</code> in the same loop, meaning that only one of them can be accessed sequentially and the other needs to be accessed through the random access pattern, utilizing the component-to-entity map in the <code>ComponentList</code> class to get which entity contains the current <code>ModelComponent</code> and then looking up that entity's transform using the entity-to-component map in the transform list.
+        </p><p>Here is a short example of a system from the <a href="#demo">demo</a>. This system operates on both <code>TransformComponent</code> and <code>ModelComponent</code> in the same loop, meaning that only one of them can be accessed sequentially and the other needs to be accessed through the random access pattern. This means using the component-to-entity map in the model list to look up which entity contains the current <code>ModelComponent</code>, and then looking up that entity's <code>TransformComponent</code> using the entity-to-component map in the transform list.
         </p>
 
         <pre><code class="language-c++">void Systems::Render(
@@ -223,7 +223,7 @@ inline void ComponentList&lt;ComponentType&gt;::RemoveComponent(Entity anEntity)
 }</code></pre>
         <h3>Result</h3>
         <p>
-          The ECS has been used in two games: <i>Loa of Death</i> and <i>Toys or Sus</i>. In both games it has performed impeccably, and has been received well from the other programmers who were able to pick it up and start using it with minimal friction. A big part of ECS which I haven't touched on in this article is that it's trivial to make data-driven, since all objects are defined at runtime. I go into more detail on how I did this for <i>Toys or Sus</i> in the article <i>Editor</i>.
+          The ECS has been used in two games: <i>Loa of Death</i> and <i>Toys or Sus</i>. In both games, it has performed impeccably, and has been received well by the other programmers who were able to pick it up and start using it with minimal friction. A big part of ECS which I haven't touched on in this article is that it's trivial to make data-driven, since all objects are defined at runtime. I go into more detail on how I did this for <i>Toys or Sus</i> in the article <i>Editor</i>.
         </p>
         <h3 id="demo">Demo</h3>
         <p>
