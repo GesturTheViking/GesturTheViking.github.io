@@ -89,3 +89,15 @@ iframe {
 .diagram-container {
     text-align: center;
 }
+
+#mobile-warning {
+    display: none;
+    color: red;
+}
+
+@media (max-width: 992px)
+{
+    #mobile-warning {
+        display: inline;
+    }
+}
