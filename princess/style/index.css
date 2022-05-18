@@ -1,0 +1,13 @@
+body, html {
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+}
+
+body {
+    background-color: black;
+    background-image: url("../assets/bageri.png");
+    background-size: cover;
+    background-position: center bottom;
+    background-attachment: fixed;
+}
