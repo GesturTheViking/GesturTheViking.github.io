@@ -22,6 +22,7 @@ let recept = [
         max: 100,
         callback: (scene) => {
             scene.ingredienser.mikroAv.setTexture("mikroPa");
+            scene.sounds.microLoop.play();
         }
     },
     {
@@ -34,6 +35,7 @@ let recept = [
             let y = scene.ingredienser.hona.y;
 
             SpawnIngredAt(scene.ingredienser.aggHel, x, y);
+            scene.sounds.aggSpawn.play();
         }
     },
     {
@@ -47,7 +49,8 @@ let recept = [
 
             RemoveIngred(scene.ingredienser.aggHel);
             SpawnIngredAt(scene.ingredienser.agg, x, y);
-            SpawnIngredAt(scene.ingredienser.skal, x, y);
+            SpawnIngredAt(scene.ingredienser.skal, x, y - 10.0);
+            scene.sounds.aggKras.play();
         }
     },
     {
@@ -65,7 +68,11 @@ let recept = [
         objekt2: 0,
         max: 100,
         callback: (scene) => {
+            let x = scene.ingredienser.socker.x;
+            let y = scene.ingredienser.socker.y;
+
             RemoveIngred(scene.ingredienser.socker);
+            SpawnIngredAt(scene.ingredienser.sockertom, x, y);
         }
     },
     {
@@ -83,7 +90,11 @@ let recept = [
         objekt2: 0,
         max: 100,
         callback: (scene) => {
+            let x = scene.ingredienser.mjol.x;
+            let y = scene.ingredienser.mjol.y;
+
             RemoveIngred(scene.ingredienser.mjol);
+            SpawnIngredAt(scene.ingredienser.mjoltom, x, y);
         }
     },
     {
@@ -92,7 +103,11 @@ let recept = [
         objekt2: 0,
         max: 100,
         callback: (scene) => {
+            let x = scene.ingredienser.potatisMjol.x;
+            let y = scene.ingredienser.potatisMjol.y;
+
             RemoveIngred(scene.ingredienser.potatisMjol);
+            SpawnIngredAt(scene.ingredienser.potatismjoltom, x, y);
         }
     },
     {
@@ -101,7 +116,12 @@ let recept = [
         objekt2: 2,
         max: 100,
         callback: (scene) => {
+            let x = scene.ingredienser.bakpulver.x;
+            let y = scene.ingredienser.bakpulver.y;
+
             RemoveIngred(scene.ingredienser.bakpulver);
+            SpawnIngredAt(scene.ingredienser.bakpulvertom, x, y-10);
+            SpawnIngredAt(scene.ingredienser.bakpulverlock, x, y);
         }
     },
     {
@@ -145,7 +165,6 @@ let recept = [
         objekt2: 10,
         max: 100,
         callback: (scene) => {
-            RemoveIngred(scene.ingredienser.gradde);
         }
     },
     {
@@ -163,7 +182,12 @@ let recept = [
         objekt2: 20,
         max: 100,
         callback: (scene) => {
+            let x = scene.ingredienser.vaniljSocker.x;
+            let y = scene.ingredienser.vaniljSocker.y;
+
             RemoveIngred(scene.ingredienser.vaniljSocker);
+            SpawnIngredAt(scene.ingredienser.vaniljtom, x, y-10);
+            SpawnIngredAt(scene.ingredienser.vaniljlock, x, y);
         }
     },
     {
@@ -192,6 +216,8 @@ let recept = [
             RemoveIngred(scene.ingredienser.hona);
             SpawnIngredAt(scene.ingredienser.raKyckling, x, y);
             SpawnIngredAt(scene.ingredienser.spelSylt, x, y);
+
+            scene.sounds.spelSyltHela.play();
         }  
     },
     {
@@ -206,6 +232,7 @@ let recept = [
             RemoveIngred(scene.ingredienser.spelSylt);
             RemoveIngred(scene.ingredienser.tallrikbotten1);
             SpawnIngredAt(scene.ingredienser.tallrikbotten2, x, y);
+            SpawnIngredAt(scene.ingredienser.spelsylttom, x, y-10);
         }  
     },
     {
@@ -247,6 +274,7 @@ let recept = [
             RemoveIngred(scene.ingredienser.marsipan);
             RemoveIngred(scene.ingredienser.tallrikbotten4);
             SpawnIngredAt(scene.ingredienser.tallrikbotten5, x, y);
+            SpawnIngredAt(scene.ingredienser.marsipantom, x, y-10);
         }  
     },
     {
@@ -261,12 +289,13 @@ let recept = [
             RemoveIngred(scene.ingredienser.florSocker);
             RemoveIngred(scene.ingredienser.tallrikbotten5);
             SpawnIngredAt(scene.ingredienser.tallrikbotten6, x, y);
+            SpawnIngredAt(scene.ingredienser.florsockertom, x, y-10);
         }  
     },
     {
         instruktion: "Lägg på rosen.",
         objekt1: 33,
-        objekt2: 34,
+        objekt2: 35,
         max: 100,
         callback: (scene) => {
             let x = scene.ingredienser.tallrikbotten6.x;
@@ -274,7 +303,7 @@ let recept = [
             
             RemoveIngred(scene.ingredienser.rosEllerHallon);
             RemoveIngred(scene.ingredienser.tallrikbotten6);
-            //SpawnIngredAt(scene.ingredienser.tallrikbotten7, x, y); Rose
+            SpawnIngredAt(scene.ingredienser.tallrikbotten7, x, y);
         }  
     }
 ];

@@ -22,12 +22,21 @@ hsListScene.Boot.prototype = {
         this.txt = this.add.text(1920/2, 1080/2, "").setOrigin(.5).setFontFamily("Comic Sans MS").setFontSize(52).setStroke(0, 3)
             .setAlign("center");
 
-        this.add.text(1920/2 + 10, 880, 'Back').setFontSize(45).setFontFamily('Comic Sans MS').setOrigin(0, .5).setStroke(0, 4);
-        this.btn = this.add.sprite(1920/2 - 10, 880, 'EscBtn').setOrigin(1, .5);
+        this.add.text(1920/2 + 10, 920, 'Back').setFontSize(45).setFontFamily('Comic Sans MS').setOrigin(0, .5).setStroke(0, 4);
+        this.btn = this.add.sprite(1920/2 - 10, 920, 'EscBtn').setOrigin(1, .5);
 
         this.delay = 0;
+
+        document.body.style.background = 'url("assets/sprites/ui/bg.png")';
+        document.body.style.backgroundSize = 'cover';
+        document.body.style.backgroundColor = "black";
     },
     update: function (frame, dt) {
+        if (happyMusic && !happyMusic.isPlaying)
+        {
+            happyMusic.play();
+        }
+
         this.delay += dt;
         if (this.delay <= 50)
         {
@@ -49,8 +58,7 @@ hsListScene.Boot.prototype = {
         }
         if (back)
         {
-            this.scene.switch('menuScene');
-            this.delay = 0;
+            location.reload();
         }
 
         let list = [];

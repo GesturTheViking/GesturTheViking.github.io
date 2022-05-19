@@ -11,6 +11,7 @@ creditsScene.Boot.prototype = {
         this.load.image('EscBtn', 'assets/sprites/ui/EscBtn.png');
         this.load.image('AButton', 'assets/sprites/ui/AButton.png');
         this.load.image('BButton', 'assets/sprites/ui/BButton.png');
+        this.load.audio('drottning', [ 'assets/audio/drottningsylt.mp3', 'assets/audio/drottningsylt.ogg' ]);
     },
     create: function () {
         c = this;
@@ -21,7 +22,7 @@ creditsScene.Boot.prototype = {
         this.keyboardInput.space =   this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
         this.keyboardInput.enter =   this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ENTER);
 
-        this.add.text(1920/2, 1080/2, "Credits:\nAxel Melkersson - Lead Slav från Småland\nElia Rönning - Associate Principle Mutare av Utbildare\nSamuel Thorslund - Lead Sabotör av Andra Grupper\nJulian Wojtas - Boss Talent Acquisition Manager Lead Specialist HR Manager Artist\nEdward Blom - Lead Singer, Gastronom & Prinsessexpert\nTeo Silfverhjelm - Lead P-A Ring")
+        this.add.text(1920/2, 1080/2, "Credits:\nAxel Melkersson - Lead Slav från Småland\nElia Rönning - Associate Principle Mutare av Utbildare\nSamuel Thorslund - Lead Sabotör av Andra Grupper\nJulian Wojtas - Boss Talent Acquisition Manager Lead Specialist HR Manager Artist\nEdward Blom - Lead Singer, Gastronom & Prinsessexpert\nTeo Silfverhjelm - Lead P-A Ring\nMorgan Waern Waernström - QA")
             .setOrigin(.5).setFontFamily('Comic Sans MS').setStroke(0, 4)
             .setFontSize(40);
 
@@ -29,8 +30,15 @@ creditsScene.Boot.prototype = {
         this.btn = this.add.sprite(1920/2 - 10, 880, 'EscBtn').setOrigin(1, .5);
 
         this.delay = 0;
+
+        this.music = this.sound.add('drottning', { loop: true }).setVolume(.3);
     },
     update: function (frame, dt) {
+        if (!this.music.isPlaying)
+        {
+            this.music.play();
+        }
+
         this.delay += dt;
         if (this.delay <= 50)
         {
@@ -52,6 +60,7 @@ creditsScene.Boot.prototype = {
         }
         if (back)
         {
+            this.music.stop();
             this.scene.switch('menuScene');
             this.delay = 0;
         }

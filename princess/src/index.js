@@ -4,8 +4,17 @@ let leftGrabbing = false;
 let rightGrabbing = false;
 let hasGlasses = false;
 
+let chickenHeld = false;
+let chickenAlive = true;
+let chickenTimer = 1.0;
+let chickenBounceRate = chickenTimer;
+
 let ingredientAddTime = 100;
 let ingredientAddTimer = ingredientAddTime;
+
+let score = 6000.0;
+let ingredientCollisionSoundTime = 250;
+let ingredientCollisionSoundTimer = ingredientCollisionSoundTime;
 
 let bunkensMjol = 0;
 let bunkensMaxMjol = 500;
@@ -57,7 +66,7 @@ gameScene.Boot.prototype = {
         this.load.image("gradde", "assets/sprites/grädde.png");
         this.load.image("marsipan", "assets/sprites/marsipan.png");
         this.load.image("mikroAv", "assets/sprites/mikroOff.png");
-        this.load.image("mikroPa", "assets/sprites/mikroOn.png");
+        this.load.image("mikroPa", "assets/sprites/mikroON.png");
         this.load.image("potatisMjol", "assets/sprites/potatisMjöl.png");
         this.load.image("raKyckling", "assets/sprites/RAW.png");
         this.load.image("skal", "assets/sprites/skal.png");
@@ -78,13 +87,42 @@ gameScene.Boot.prototype = {
         this.load.image("tallrikbotten4", "assets/sprites/tallrikbotten4.png");
         this.load.image("tallrikbotten5", "assets/sprites/tallrikbotten5.png");
         this.load.image("tallrikbotten6", "assets/sprites/tallrikbotten6.png");
+        this.load.image("tallrikbotten7", "assets/sprites/tallrikbotten7.png");
         this.load.image("rosEllerHallon", "assets/sprites/rosEllerHallon.png");
+        this.load.image("bakpulverlock", "assets/sprites/bakpulverlock.png");
+        this.load.image("marsipantom", "assets/sprites/marsipantom.png");
+        this.load.image("spelsylttom", "assets/sprites/spelsylttom.png");
+        this.load.image("vaniljlock", "assets/sprites/vaniljlock.png");
+        this.load.image("vaniljtom", "assets/sprites/vaniljtom.png");
+        this.load.image("mjoltom", "assets/sprites/mjoltom.png");
+        this.load.image("florsockertom", "assets/sprites/florsockertom.png");
+        this.load.image("sockertom", "assets/sprites/sockertom.png");
+        this.load.image("potatismjoltom", "assets/sprites/potatismjoltom.png");
+        this.load.image("bakpulvertom", "assets/sprites/bakpulvertom.png");
 
         this.load.json("ingredienser", "assets/ingredienser.json");
 
         this.load.image("barFill", "assets/sprites/barFill.png");
         this.load.image("barBackground", "assets/sprites/barBackground.png");
         this.load.image("barComplete", "assets/sprites/barComplete.png");
+
+        this.load.audio("aggKras", "assets/audio/aggKras.wav");
+        this.load.audio("aggSpawn", "assets/audio/aggSpawn.wav");
+        this.load.audio("fardigUppgift", "assets/audio/fardigUppgift.wav");
+        this.load.audio("kollision1", "assets/audio/kollision1.wav");
+        this.load.audio("Kollision2", "assets/audio/Kollision2.wav");
+        this.load.audio("Kollision3", "assets/audio/Kollision3.wav");
+        this.load.audio("Kollision4", "assets/audio/Kollision4.wav");
+        this.load.audio("microLoop", "assets/audio/microLoop.wav");
+        this.load.audio("microPling", "assets/audio/microPling.wav");
+        this.load.audio("microVaggKollision1", "assets/audio/microVaggKollision1.wav");
+        this.load.audio("microVaggKollision2", "assets/audio/microVaggKollision2.wav");
+        this.load.audio("microVaggKollision3", "assets/audio/microVaggKollision3.wav");
+        this.load.audio("spelSyltBre", "assets/audio/spelSyltBre.wav");
+        this.load.audio("spelSyltHela", "assets/audio/spelSyltHela.wav");
+        this.load.audio("taPaGlasogon", "assets/audio/taPaGlasogon.wav");
+
+        this.load.audio("gameMusic", [ "assets/audio/Hillbilly_Swing.mp3", "assets/audio/Hillbilly_Swing.ogg" ]);
     },
     create: function () {
         document.body.style.background = 'url("assets/bageri.png")';
@@ -93,6 +131,9 @@ gameScene.Boot.prototype = {
         t = this;
         this.input.mouse.disableContextMenu();
         this.matter.world.setBounds();
+
+        this.gameMusic = this.sound.add("gameMusic", { loop: true }).setVolume(.075);
+        this.gameMusic.play();
         
         keyboardInput.cursors = this.input.keyboard.createCursorKeys();
         keyboardInput.shift =   this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SHIFT);
@@ -101,7 +142,8 @@ gameScene.Boot.prototype = {
         keyboardInput.s =       this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.S);
         keyboardInput.d =       this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.D);
         keyboardInput.space =   this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
-        keyboardInput.esc =   this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ESC);
+        keyboardInput.esc =     this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ESC);
+        keyboardInput.enter =     this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ENTER);
 
         this.matter.world.on('collisionstart', function (e) {
             e.pairs.forEach(function (pair) {
@@ -117,6 +159,11 @@ gameScene.Boot.prototype = {
                                 { pointA: { x: -65, y: 10 } } */));
                             
                             A.gameObject.setData("holdIngrediens", B.gameObject);
+
+                            if (B.gameObject.texture.key == "hona")
+                            {
+                                chickenHeld = true;
+                            }
                         }
                         if ((A.gameObject.texture.key == "Ropenhand" || A.gameObject.texture.key == "Rclosedhand")
                          && !A.gameObject.getData("hasIngrediens") && rightGrabbing)
@@ -125,6 +172,11 @@ gameScene.Boot.prototype = {
                                 { pointA: { x: -65, y: 10 } } */));
                             
                             A.gameObject.setData("holdIngrediens", B.gameObject);
+
+                            if (B.gameObject.texture.key == "hona")
+                            {
+                                chickenHeld = true;
+                            }
                         }
                         
                         if (!A.gameObject.getData("hasIngrediens") && A.gameObject.texture.key == "head" && B.gameObject.texture.key == "solglasogon")
@@ -140,6 +192,8 @@ gameScene.Boot.prototype = {
                             t.matter.add.constraint(A.gameObject, B.gameObject, 10, .05,
                                 { pointA: { x: -40, y: -15 }, pointB: { x: -10, y: -10 } });
                             hasGlasses = true;
+
+                            t.sounds.taPaGlasogon.play();
                         }
                     }
 
@@ -157,9 +211,46 @@ gameScene.Boot.prototype = {
                         let mag = magBunke + magIngred;
 
                         if(mag > 15){
+                            if(nuvarandeSteg == 17) {
+                                t.sounds.spelSyltBre.play();
+                            }
+
                             receptProgress += mag;
                             receptProgress = Math.min(receptProgress, recept[nuvarandeSteg].max);
                             ingredientAddTimer = ingredientAddTime;
+                        }
+                    }
+
+                    if (A.gameObject.getData("isIngrediens") && B.gameObject.getData("isIngrediens") && ingredientCollisionSoundTimer <= 0.0)
+                    {
+                        let velBunkeX = A.gameObject.body.velocity.x;
+                        let velBunkeY = A.gameObject.body.velocity.y;
+                        let velIngredX = B.gameObject.body.velocity.x;
+                        let velIngredY = B.gameObject.body.velocity.y;
+                        let magIngred1 = Math.sqrt(velBunkeX * velBunkeX + velBunkeY * velBunkeY);
+                        let magIngred2 = Math.sqrt(velIngredX * velIngredX + velIngredY * velIngredY);
+                        let mag = magIngred1 + magIngred2;
+
+                        if(mag > 15) {
+                            if(A.gameObject.getData("mikro") || B.gameObject.getData("mikro")) {
+                                t.sounds.microPling.play();
+                            }
+
+                            let rand = Math.random() * 100;
+                            if(rand < 25){
+                                t.sounds.kollision1.play();
+                            }
+                            else if(rand < 50){
+                                t.sounds.kollision2.play();
+                            }
+                            else if(rand < 75){
+                                t.sounds.kollision3.play();
+                            }
+                            else if(rand < 100){
+                                t.sounds.kollision4.play();
+                            }
+
+                            ingredientCollisionSoundTimer = ingredientCollisionSoundTime;
                         }
                     }
                 }
@@ -176,6 +267,26 @@ gameScene.Boot.prototype = {
                             receptProgress += magIngred;
                             receptProgress = Math.min(receptProgress, recept[nuvarandeSteg].max);
                             ingredientAddTimer = ingredientAddTime;
+                        }
+                    }
+
+                    if(B.gameObject.getData("mikro")) {
+                        let velIngredX = B.gameObject.body.velocity.x;
+                        let velIngredY = B.gameObject.body.velocity.y;
+                        let magIngred = Math.sqrt(velIngredX * velIngredX + velIngredY * velIngredY);
+                        if(magIngred > 8) {
+                            let rand = Math.random() * 100;
+                            if(rand < 33){
+                                t.sounds.microVaggKollision1.play();
+                            }
+                            else if(rand < 66){
+                                t.sounds.microVaggKollision2.play();
+                            }
+                            else if(rand < 100){
+                                t.sounds.microVaggKollision3.play();
+                            }
+
+                            ingredientCollisionSoundTimer = ingredientCollisionSoundTime;
                         }
                     }
                 }
@@ -274,33 +385,33 @@ gameScene.Boot.prototype = {
             this.hyllor.lampFaste.setVisible(false);
             this.hyllor.lampFaste.setCollidesWith();
 
-            this.hyllor.hyllaV1 = this.matter.add.sprite(128, 200, "hyllaV");
+            this.hyllor.hyllaV1 = this.matter.add.sprite(128, 330, "hyllaV");
             this.hyllor.hyllaV1.setBody(this.ingredienser_colliders.LShelf);
 
-            this.hyllor.hyllaV2 = this.matter.add.sprite(128, 400, "hyllaV");
+            this.hyllor.hyllaV2 = this.matter.add.sprite(128, 530, "hyllaV");
             this.hyllor.hyllaV2.setBody(this.ingredienser_colliders.LShelf);
 
-            this.hyllor.hyllaV3 = this.matter.add.sprite(128, 600, "hyllaV");
+            this.hyllor.hyllaV3 = this.matter.add.sprite(128, 730, "hyllaV");
             this.hyllor.hyllaV3.setBody(this.ingredienser_colliders.LShelf);
 
-            this.hyllor.hyllaH1 = this.matter.add.sprite(1920 - 128, 200, "hyllaH");
+            this.hyllor.hyllaH1 = this.matter.add.sprite(1920 - 128, 330, "hyllaH");
             this.hyllor.hyllaH1.setBody(this.ingredienser_colliders.RShelf);
 
-            this.hyllor.hyllaH2 = this.matter.add.sprite(1920 - 128, 400, "hyllaH");
+            this.hyllor.hyllaH2 = this.matter.add.sprite(1920 - 128, 530, "hyllaH");
             this.hyllor.hyllaH2.setBody(this.ingredienser_colliders.RShelf);
 
-            this.hyllor.hyllaH3 = this.matter.add.sprite(1920 - 128, 600, "hyllaH");
+            this.hyllor.hyllaH3 = this.matter.add.sprite(1920 - 128, 730, "hyllaH");
             this.hyllor.hyllaH3.setBody(this.ingredienser_colliders.RShelf);
 
-            this.ingredienser.bunke = this.matter.add.sprite(1830, 100, "bunke");
+            this.ingredienser.bunke = this.matter.add.sprite(1830, 230, "bunke");
             this.ingredienser.bunke.setBody(this.ingredienser_colliders.bowl).setScale(0.5);
             this.ingredienser.bunke.setData({ isBunke: true, index: 0 });
 
-            this.ingredienser.mjol = this.matter.add.sprite(160, 100, "mjol");
+            this.ingredienser.mjol = this.matter.add.sprite(160, 230, "mjol");
             this.ingredienser.mjol.setBody(this.ingredienser_colliders.mjol).setScale(0.5);
             this.ingredienser.mjol.setData({ index: 1 });
 
-            this.ingredienser.bakpulver = this.matter.add.sprite(100, 100, "bakpulver");
+            this.ingredienser.bakpulver = this.matter.add.sprite(100, 230, "bakpulver");
             this.ingredienser.bakpulver.setBody(this.ingredienser_colliders.bakpulver).setScale(1.0);
             this.ingredienser.bakpulver.setData({ index: 2 });
 
@@ -323,11 +434,11 @@ gameScene.Boot.prototype = {
             this.ingredienser.aggHel.setData({ index: 6 });
             RemoveIngred(this.ingredienser.aggHel);
 
-            this.ingredienser.florSocker = this.matter.add.sprite(40, 290, "florsocker");
+            this.ingredienser.florSocker = this.matter.add.sprite(40, 420, "florsocker");
             this.ingredienser.florSocker.setBody(this.ingredienser_colliders.florsocker).setScale(0.7);
             this.ingredienser.florSocker.setData({ index: 7 });
 
-            this.ingredienser.spelSylt = this.matter.add.sprite(60, 450, "spelsylt");
+            this.ingredienser.spelSylt = this.matter.add.sprite(60, 580, "spelsylt");
             this.ingredienser.spelSylt.setBody(this.ingredienser_colliders.gamejam).setScale(1.0);
             this.ingredienser.spelSylt.setData({ index: 8 });
             RemoveIngred(this.ingredienser.spelSylt);
@@ -337,23 +448,23 @@ gameScene.Boot.prototype = {
             this.ingredienser.blaFagel.setData({ index: 9 });
             RemoveIngred(this.ingredienser.blaFagel);
 
-            this.ingredienser.gradde = this.matter.add.sprite(120, 520, "gradde");
+            this.ingredienser.gradde = this.matter.add.sprite(120, 650, "gradde");
             this.ingredienser.gradde.setBody(this.ingredienser_colliders.gradde).setScale(0.7);
             this.ingredienser.gradde.setData({ index: 10 });
 
-            this.ingredienser.marsipan = this.matter.add.sprite(60, 550, "marsipan");
+            this.ingredienser.marsipan = this.matter.add.sprite(60, 680, "marsipan");
             this.ingredienser.marsipan.setBody(this.ingredienser_colliders.marsipan).setScale(0.7);
             this.ingredienser.marsipan.setData({ index: 11 });
 
-            this.ingredienser.mikroAv = this.matter.add.sprite(1830, 550, "mikroAv");
+            this.ingredienser.mikroAv = this.matter.add.sprite(1830, 680, "mikroAv");
             this.ingredienser.mikroAv.setBody(this.ingredienser_colliders.mikroOff).setScale(0.25);
-            this.ingredienser.mikroAv.setData({ index: 12 });
+            this.ingredienser.mikroAv.setData({ mikro: true, index: 12 });
 
             /*this.ingredienser.mikroPa = this.matter.add.sprite(1860, 150, "mikroPa");
             this.ingredienser.mikroPa.setBody(this.ingredienser_colliders.mikroON).setScale(0.25);
             this.ingredienser.mikroPa.setData({ index: 13 });*/
 
-            this.ingredienser.potatisMjol = this.matter.add.sprite(40, 100, "potatisMjol");
+            this.ingredienser.potatisMjol = this.matter.add.sprite(40, 230, "potatisMjol");
             this.ingredienser.potatisMjol.setBody(this.ingredienser_colliders.potatisMjöl).setScale(0.7);
             this.ingredienser.potatisMjol.setData({ index: 14 });
 
@@ -367,11 +478,11 @@ gameScene.Boot.prototype = {
             this.ingredienser.skal.setData({ index: 16 });
             RemoveIngred(this.ingredienser.skal);
 
-            this.ingredienser.sked = this.matter.add.sprite(1860, 280, "sked");
+            this.ingredienser.sked = this.matter.add.sprite(1860, 410, "sked");
             this.ingredienser.sked.setBody(this.ingredienser_colliders.sked).setScale(0.7);
             this.ingredienser.sked.setData({ index: 17 });
 
-            this.ingredienser.socker = this.matter.add.sprite(100, 290, "socker");
+            this.ingredienser.socker = this.matter.add.sprite(100, 420, "socker");
             this.ingredienser.socker.setBody(this.ingredienser_colliders.socker).setScale(0.7);
             this.ingredienser.socker.setData({ index: 18 });
 
@@ -380,11 +491,11 @@ gameScene.Boot.prototype = {
             this.ingredienser.kycklingBrostFile.setData({ index: 19 });
             RemoveIngred(this.ingredienser.kycklingBrostFile);
 
-            this.ingredienser.vaniljSocker = this.matter.add.sprite(150, 290, "vaniljSocker");
+            this.ingredienser.vaniljSocker = this.matter.add.sprite(150, 420, "vaniljSocker");
             this.ingredienser.vaniljSocker.setBody(this.ingredienser_colliders.vaniljSocker).setScale(1.0);
             this.ingredienser.vaniljSocker.setData({ index: 20 });
 
-            this.ingredienser.visp = this.matter.add.sprite(1830, 50, "visp");
+            this.ingredienser.visp = this.matter.add.sprite(1830, 180, "visp");
             this.ingredienser.visp.setBody(this.ingredienser_colliders.visp).setScale(0.7);
             this.ingredienser.visp.setData({ index: 21 });
 
@@ -408,12 +519,12 @@ gameScene.Boot.prototype = {
             this.ingredienser.tartbottenHalv2.setData({ index: 25 });
             RemoveIngred(this.ingredienser.tartbottenHalv2);
 
-            this.ingredienser.kniv = this.matter.add.sprite(1860, 700, "kniv");
+            this.ingredienser.kniv = this.matter.add.sprite(1860, 830, "kniv");
             this.ingredienser.kniv.setBody(this.ingredienser_colliders.kniv);
             this.ingredienser.kniv.setData({ stuckToWall: this.matter.add.constraint(this.hyllor.hyllaH3, this.ingredienser.kniv, 100, .05,
                 { pointA: { x: 0, y: 0 }, pointB: { x: 0, y: 50 } }), index: 26 });
 
-            this.ingredienser.tallrik = this.matter.add.sprite(1800, 300, "tallrik");
+            this.ingredienser.tallrik = this.matter.add.sprite(1800, 430, "tallrik");
             this.ingredienser.tallrik.setBody(this.ingredienser_colliders.tallrik);
             this.ingredienser.tallrik.setData({ index: 27 });
 
@@ -446,18 +557,93 @@ gameScene.Boot.prototype = {
             this.ingredienser.tallrikbotten6.setBody(this.ingredienser_colliders.tallrikbotten6);
             this.ingredienser.tallrikbotten6.setData({ index: 33 });
             RemoveIngred(this.ingredienser.tallrikbotten6);
+            
+            this.ingredienser.tallrikbotten7 = this.matter.add.sprite(1160, 1000, "tallrikbotten7");
+            this.ingredienser.tallrikbotten7.setBody(this.ingredienser_colliders.tallrikbotten7);
+            this.ingredienser.tallrikbotten7.setData({ index: 34 });
+            RemoveIngred(this.ingredienser.tallrikbotten7);
 
-            this.ingredienser.rosEllerHallon = this.matter.add.sprite(160, 500, "rosEllerHallon");
+            this.ingredienser.rosEllerHallon = this.matter.add.sprite(160, 630, "rosEllerHallon");
             this.ingredienser.rosEllerHallon.setBody(this.ingredienser_colliders.rosEllerHallon);
-            this.ingredienser.rosEllerHallon.setData({ index: 34 });
+            this.ingredienser.rosEllerHallon.setData({ index: 35 });
 
-            this.ingredienser.solglasogon = this.matter.add.sprite(1830, 500, "solglasogon");
+            this.ingredienser.bakpulverlock = this.matter.add.sprite(160, 630, "bakpulverlock");
+            this.ingredienser.bakpulverlock.setBody(this.ingredienser_colliders.bakpulverlock);
+            this.ingredienser.bakpulverlock.setData({ index: 36 });
+            RemoveIngred(this.ingredienser.bakpulverlock);
+
+            this.ingredienser.marsipantom = this.matter.add.sprite(160, 630, "marsipantom");
+            this.ingredienser.marsipantom.setBody(this.ingredienser_colliders.marsipantom);
+            this.ingredienser.marsipantom.setData({ index: 37 });
+            RemoveIngred(this.ingredienser.marsipantom);
+
+            this.ingredienser.spelsylttom = this.matter.add.sprite(160, 630, "spelsylttom");
+            this.ingredienser.spelsylttom.setBody(this.ingredienser_colliders.spelsylttom);
+            this.ingredienser.spelsylttom.setData({ index: 38 });
+            RemoveIngred(this.ingredienser.spelsylttom);
+
+            this.ingredienser.vaniljlock = this.matter.add.sprite(160, 630, "vaniljlock");
+            this.ingredienser.vaniljlock.setBody(this.ingredienser_colliders.vaniljlock);
+            this.ingredienser.vaniljlock.setData({ index: 39 });
+            RemoveIngred(this.ingredienser.vaniljlock);
+
+            this.ingredienser.vaniljtom = this.matter.add.sprite(160, 630, "vaniljtom");
+            this.ingredienser.vaniljtom.setBody(this.ingredienser_colliders.vaniljtom);
+            this.ingredienser.vaniljtom.setData({ index: 39 });
+            RemoveIngred(this.ingredienser.vaniljtom);
+
+            this.ingredienser.mjoltom = this.matter.add.sprite(160, 630, "mjoltom");
+            this.ingredienser.mjoltom.setBody(this.ingredienser_colliders.mjoltom).setScale(0.5);
+            this.ingredienser.mjoltom.setData({ index: 40 });
+            RemoveIngred(this.ingredienser.mjoltom);
+
+            this.ingredienser.florsockertom = this.matter.add.sprite(160, 630, "florsockertom");
+            this.ingredienser.florsockertom.setBody(this.ingredienser_colliders.florsockertom);
+            this.ingredienser.florsockertom.setData({ index: 41 });
+            RemoveIngred(this.ingredienser.florsockertom);
+
+            this.ingredienser.sockertom = this.matter.add.sprite(160, 630, "sockertom");
+            this.ingredienser.sockertom.setBody(this.ingredienser_colliders.sockertom);
+            this.ingredienser.sockertom.setData({ index: 42 });
+            RemoveIngred(this.ingredienser.sockertom);
+
+            this.ingredienser.potatismjoltom = this.matter.add.sprite(160, 630, "potatismjoltom");
+            this.ingredienser.potatismjoltom.setBody(this.ingredienser_colliders.potatismjoltom).setScale(0.5);
+            this.ingredienser.potatismjoltom.setData({ index: 43 });
+            RemoveIngred(this.ingredienser.potatismjoltom);
+            
+            this.ingredienser.bakpulvertom = this.matter.add.sprite(160, 630, "bakpulvertom");
+            this.ingredienser.bakpulvertom.setBody(this.ingredienser_colliders.bakpulvertom);
+            this.ingredienser.bakpulvertom.setData({ index: 44 });
+            RemoveIngred(this.ingredienser.bakpulvertom);
+
+            this.ingredienser.solglasogon = this.matter.add.sprite(1830, 630, "solglasogon");
             this.ingredienser.solglasogon.setBody(this.ingredienser_colliders.solglasogon);
             this.ingredienser.solglasogon.setData({ index: 69 });
 
             Object.values(this.ingredienser).forEach((obj) => {
                 obj.setData("isIngrediens", true);
             });
+        }
+
+        /* Sound */
+        {
+            this.sounds = {}
+            this.sounds.aggKras = this.sound.add("aggKras");
+            this.sounds.aggSpawn = this.sound.add("aggSpawn");
+            this.sounds.fardigUppgift = this.sound.add("fardigUppgift").setVolume(0.1);
+            this.sounds.kollision1 = this.sound.add("kollision1");
+            this.sounds.kollision2 = this.sound.add("Kollision2");
+            this.sounds.kollision3 = this.sound.add("Kollision3");
+            this.sounds.kollision4 = this.sound.add("Kollision4");
+            this.sounds.microLoop = this.sound.add("microLoop");
+            this.sounds.microPling = this.sound.add("microPling");
+            this.sounds.microVaggKollision1 = this.sound.add("microVaggKollision1");
+            this.sounds.microVaggKollision2 = this.sound.add("microVaggKollision2");
+            this.sounds.microVaggKollision3 = this.sound.add("microVaggKollision3");
+            this.sounds.spelSyltBre = this.sound.add("spelSyltBre");
+            this.sounds.spelSyltHela = this.sound.add("spelSyltHela");
+            this.sounds.taPaGlasogon = this.sound.add("taPaGlasogon");
         }
 
         txt = this.add.text(1800, 20, 'hej').setFontFamily('Comic Sans MS').setFontSize(32)/* .setColor("#ff389c") */.setStroke(0, 4);
@@ -470,8 +656,9 @@ gameScene.Boot.prototype = {
         this.barComplete = this.add.image(100, 110, "barComplete");
 
         {
-            /* this.winText = this.add.text(1920/2, 1080/2, "Snyggt bakat, fräääsig kaka.")
-                .setOrigin(.5).setFontFamily("Comic Sans MS").setFontSize(64).setColor("#b5e61d").setStroke(0, 4); */
+            this.winText = this.add.text(1920/2, 1080/2, "Snyggt bakat, fräääsig kaka.")
+                .setOrigin(.5).setFontFamily("Comic Sans MS").setFontSize(64).setColor("#b5e61d").setStroke(0, 4)
+                .setVisible(false);
         }
     },
     update: function (frame, dt) {
@@ -510,6 +697,7 @@ gameScene.Boot.prototype = {
             if(receptProgress >= recept[nuvarandeSteg].max){
                 if (!progressTimer || progressTimer.hasDispatched)
                 {
+                    this.sounds.fardigUppgift.play();
                     recept[nuvarandeSteg].callback(this);
                     progressTimer = this.time.delayedCall(3000, () => 
                     {
@@ -519,6 +707,10 @@ gameScene.Boot.prototype = {
                         {
                             this.timerStopped = true;
                             nuvarandeSteg--;
+
+                            this.winText.setAlign("center").setText(this.winText.text + "\nTid: " + formatTime(this.timer)
+                                + "\nPress " + (this.input.gamepad.total > 0 ? "A" : "Enter") + " to return to menu.").setVisible(true);
+                            this.timerTxt.setVisible(false);
                         }
                     }, [], this);
                 }
@@ -527,40 +719,67 @@ gameScene.Boot.prototype = {
             this.barFill._scaleX = (receptProgress / recept[nuvarandeSteg].max) * ((txt.width - 20) / 442);
             this.barFill._scaleY = 0.8;
             this.barFill.width = 442 * this.barFill._scaleX;
-            this.barFill.setX(1920 - txt.width + this.barFill.width * 0.5);
+            this.barFill.setX(1920 - txt.width - 10 + this.barFill.width * 0.5);
 
             this.barBackground._scaleX = txt.width / 466;
             this.barBackground._scaleY = 0.8;
             this.barBackground.width = 466 * this.barBackground._scaleX;
-            this.barBackground.setX(1920 - txt.width - 10 + this.barBackground.width * 0.5);
+            this.barBackground.setX(1920 - txt.width - 20 + this.barBackground.width * 0.5);
 
             if(receptProgress >= recept[nuvarandeSteg].max) {
                 this.barComplete._scaleX = this.barFill._scaleX;
                 this.barComplete._scaleY = 0.8;
                 this.barComplete.width = 442 * this.barComplete._scaleX;
-                this.barComplete.setX(1920 - txt.width + this.barComplete.width * 0.5);
+                this.barComplete.setX(1920 - txt.width - 10 + this.barComplete.width * 0.5);
             }
             else {
                 this.barComplete._scaleX = 0;
             }
 
             txt.setText(recept[nuvarandeSteg].instruktion);
-            txt.setX(1920 - txt.width - 10);
+            txt.setX(1920 - txt.width - 20);
         }
         else
         {
             txt.setText('');
+
+            if (Phaser.Input.Keyboard.JustDown(keyboardInput.enter) || (this.input.gamepad.total > 0 && this.input.gamepad.getPad(0).buttons[0].pressed))
+            {
+                //location.reload();
+                score = this.timer;
+                let data = JSON.parse(localStorage.getItem('marten-hs-list'));
+                console.log(data.list[data.list.length - 1].score);
+                if (!data || score < data.list[data.list.length - 1].score || data.list.length < 10)
+                {
+                    this.scene.switch('hsAddScene');
+                }
+                else this.scene.switch('hsListScene');
+
+                this.gameMusic.stop();
+            }
         }
             
+        ingredientCollisionSoundTimer -= dt;
+        if(ingredientCollisionSoundTimer <= 0.0){
+            ingredientCollisionSoundTimer = 0;
+        }
+
         ingredientAddTimer -= dt;
         if(ingredientAddTimer <= 0.0){
             ingredientAddTimer = 0;
         }
 
-        if (hasGlasses)
+        if (!chickenHeld && chickenAlive)
         {
-            //this.ingredienser.solglasogon.setX(this.character.head.x);
-            //this.ingredienser.solglasogon.setY(this.character.head.y);
+            //console.log(dt);
+            chickenTimer -= dt / 1000,0;
+            if (chickenTimer <= 0)
+            {
+                this.ingredienser.hona.setVelocityY(-6);
+                this.ingredienser.hona.setVelocityX(Math.sin(dt));
+                chickenTimer = chickenBounceRate;
+                chickenBounceRate = Math.random() + 1.0;
+            }
         }
 
         //this.scene.pause();
@@ -589,6 +808,7 @@ gameScene.Boot.prototype = {
                         this.character.Lhand.setData("hasIngrediens", false);
                     }
                     leftGrabbing = false;
+                    chickenHeld = false;
                 }
 
                 if(rTrigger > 0.2 || keyboardInput.space.isDown) {
@@ -601,6 +821,7 @@ gameScene.Boot.prototype = {
                         this.character.Rhand.setData("hasIngrediens", false);
                     }
                     rightGrabbing = false;
+                    chickenHeld = false;
                 }
 
                 if(Math.abs(lAxisH) > 0.1){

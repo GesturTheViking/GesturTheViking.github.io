@@ -11,8 +11,13 @@ menuScene.Boot.prototype = {
         this.load.image("Logo", "assets/sprites/ui/Logo.png");
         this.load.image("playBtn", "assets/sprites/ui/playBtn.png");
         this.load.image("hs", "assets/sprites/ui/highscore.png");
+        this.load.image('enterBtn', 'assets/sprites/ui/enterBtn.png');
+        this.load.image('EscBtn', 'assets/sprites/ui/EscBtn.png');
+        this.load.image('AButton', 'assets/sprites/ui/AButton.png');
+        this.load.image('BButton', 'assets/sprites/ui/BButton.png');
 
         this.load.audio('theme', [ 'assets/audio/menu.ogg', 'assets/audio/menu.mp3' ]);
+        this.load.audio('happyMusic', [ 'assets/audio/Happy_Whistling_Ukulele.ogg', 'assets/audio/Happy_Whistling_Ukulele.mp3' ]);
     },
     create: function () {
         document.body.style.background = 'url("assets/sprites/ui/bg.png")';
@@ -44,9 +49,16 @@ menuScene.Boot.prototype = {
 
         this.delay = 0;
 
-        this.theme = this.sound.add('theme', { loop: true }).setVolume(.2).play();
+        this.theme = this.sound.add('theme', { loop: true }).setVolume(.2);
+        this.theme.play();
+        happyMusic = this.sound.add('happyMusic', { loop: true }).setVolume(.2);
     },
     update: function (frame, dt) {
+        if (!this.theme.isPlaying)
+        {
+            this.theme.play();
+        }
+
         this.delay += dt;
         if (this.delay <= 250)
         {
@@ -106,9 +118,9 @@ menuScene.Boot.prototype = {
         {
             switch (this.selected)
             {
-                case 0: this.scene.switch('gameScene'); break;
-                case 1: this.scene.switch('creditsScene'); this.delay = 0;break;
-                case 2: this.scene.switch('hsListScene'); this.delay = 0;break;
+                case 0: this.scene.switch('gameScene'); this.theme.stop(); break;
+                case 1: this.scene.switch('creditsScene'); this.delay = 0;this.theme.stop();break;
+                case 2: this.scene.switch('hsListScene'); this.delay = 0;this.theme.stop(); break;
             }
         }
     }
