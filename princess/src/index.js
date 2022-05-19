@@ -799,8 +799,11 @@ gameScene.Boot.prototype = {
                 //location.reload();
                 score = this.timer;
                 let data = JSON.parse(localStorage.getItem('marten-hs-list'));
-                console.log(data.list[data.list.length - 1].score);
-                if (!data || score < data.list[data.list.length - 1].score || data.list.length < 10)
+                if (data == null)
+                {
+                    this.scene.switch('hsAddScene');
+                }
+                else if (score < data.list[data.list.length - 1].score || data.list.length < 10)
                 {
                     this.scene.switch('hsAddScene');
                 }
