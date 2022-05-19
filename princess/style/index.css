@@ -6,7 +6,7 @@ body, html {
 
 body {
     background-color: black;
-    background-image: url("../assets/bageri.png");
+    /*background-image: url("../assets/bageri.png");*/
     background-size: cover;
     background-position: center bottom;
     background-attachment: fixed;
