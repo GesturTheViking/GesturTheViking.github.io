@@ -87,7 +87,7 @@ gameScene.Boot.prototype = {
         this.load.image("barComplete", "assets/sprites/barComplete.png");
     },
     create: function () {
-        document.body.style.background = 'url("../assets/bageri.png")';
+        document.body.style.background = 'url("assets/bageri.png")';
         document.body.style.backgroundSize = "cover";
 
         t = this;

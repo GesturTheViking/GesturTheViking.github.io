@@ -15,7 +15,7 @@ menuScene.Boot.prototype = {
         this.load.audio('theme', [ 'assets/audio/menu.ogg', 'assets/audio/menu.mp3' ]);
     },
     create: function () {
-        document.body.style.background = 'url("../assets/sprites/ui/bg.png")';
+        document.body.style.background = 'url("assets/sprites/ui/bg.png")';
         document.body.style.backgroundSize = 'cover';
         document.body.style.backgroundColor = "black";
 
