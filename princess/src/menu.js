@@ -10,6 +10,7 @@ menuScene.Boot.prototype = {
         this.load.image("credits", "assets/sprites/ui/credits.png");
         this.load.image("Logo", "assets/sprites/ui/Logo.png");
         this.load.image("playBtn", "assets/sprites/ui/playBtn.png");
+        this.load.image("hs", "assets/sprites/ui/highscore.png");
 
         this.load.audio('theme', [ 'assets/audio/menu.ogg', 'assets/audio/menu.mp3' ]);
     },
@@ -34,8 +35,9 @@ menuScene.Boot.prototype = {
         this.add.image(1920/2, 1080/3, "Logo");
 
         this.buttons = [];
-        this.buttons.push(this.add.image(1920/2, 1080/2 + 200, "playBtn").setScale(1.4));
-        this.buttons.push(this.add.image(1920/2, 1080/2 + 400, "credits"));
+        this.buttons.push(this.add.image(1920/2, 1080/2 + 200, "playBtn").setScale(1.2));
+        this.buttons.push(this.add.image(1920/2, 1080/2 + 300, "credits"));
+        this.buttons.push(this.add.image(1920/2, 1080/2 + 400, "hs"));
 
         this.selected = 0;
         this.dosDelay = 0;
@@ -57,7 +59,7 @@ menuScene.Boot.prototype = {
         {
             if (i == this.selected)
             {
-                obj.setScale(1.4);
+                obj.setScale(1.2);
             }
             else
             {
@@ -89,12 +91,12 @@ menuScene.Boot.prototype = {
             if (up)
             {
                 this.selected = Phaser.Math.Clamp(this.selected - 1, 0, this.buttons.length - 1);
-                this.dosDelay = .1;
+                this.dosDelay = .2;
             }
             if (down)
             {
                 this.selected = Phaser.Math.Clamp(this.selected + 1, 0, this.buttons.length - 1);
-                this.dosDelay = .1;
+                this.dosDelay = .2;
             }
 
             selectDown |= pad.buttons[0].value;
@@ -106,6 +108,7 @@ menuScene.Boot.prototype = {
             {
                 case 0: this.scene.switch('gameScene'); break;
                 case 1: this.scene.switch('creditsScene'); this.delay = 0;break;
+                case 2: this.scene.switch('hsListScene'); this.delay = 0;break;
             }
         }
     }

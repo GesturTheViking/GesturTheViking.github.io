@@ -78,11 +78,13 @@ gameScene.Boot.prototype = {
         this.load.image("tallrikbotten4", "assets/sprites/tallrikbotten4.png");
         this.load.image("tallrikbotten5", "assets/sprites/tallrikbotten5.png");
         this.load.image("tallrikbotten6", "assets/sprites/tallrikbotten6.png");
+        this.load.image("rosEllerHallon", "assets/sprites/rosEllerHallon.png");
 
         this.load.json("ingredienser", "assets/ingredienser.json");
 
         this.load.image("barFill", "assets/sprites/barFill.png");
         this.load.image("barBackground", "assets/sprites/barBackground.png");
+        this.load.image("barComplete", "assets/sprites/barComplete.png");
     },
     create: function () {
         document.body.style.background = 'url("../assets/bageri.png")';
@@ -134,9 +136,9 @@ gameScene.Boot.prototype = {
                             var rot = A.gameObject.body.angle;
                             B.gameObject.body.angle = rot;
                             t.matter.add.constraint(A.gameObject, B.gameObject, 10, .05,
-                                { pointA: { x: 30, y: -5 }, pointB: { x: 10, y: -10 } });
+                                { pointA: { x: 30, y: -15 }, pointB: { x: 10, y: -10 } });
                             t.matter.add.constraint(A.gameObject, B.gameObject, 10, .05,
-                                { pointA: { x: -40, y: -5 }, pointB: { x: -10, y: -10 } });
+                                { pointA: { x: -40, y: -15 }, pointB: { x: -10, y: -10 } });
                             hasGlasses = true;
                         }
                     }
@@ -229,9 +231,9 @@ gameScene.Boot.prototype = {
             this.character.chin.setCollidesWith();
 
             this.matter.add.constraint(this.character.chest, this.character.head, 30, .25,
-                { pointA: { x: 10, y: -70 }, pointB: { x: 10, y:  80 } });
+                { pointA: { x: 10, y: -70 }, pointB: { x: 10, y:  70 } });
             this.matter.add.constraint(this.character.chest, this.character.head, 30, .25,
-                { pointA: { x: -10, y: -70 }, pointB: { x: -10, y:  80 } });
+                { pointA: { x: -10, y: -70 }, pointB: { x: -10, y:  70 } });
             this.matter.add.constraint(this.character.chest, this.character.armL1, 15, .05,
                 { pointA: { x: -55, y: -70 }, pointB: { x: 5, y: -5 } });
             this.matter.add.constraint(this.character.chest, this.character.armR1, 15, .05,
@@ -249,9 +251,11 @@ gameScene.Boot.prototype = {
             this.matter.add.constraint(this.character.armR2, this.character.Rhand, 10, .1,
                 { pointA: { x: 12, y: 60 }, pointB: { x: 0, y: -25 } });
             this.matter.add.constraint(this.character.head, this.character.chin, 10, .1,
-                { pointA: { x: 10, y: 45 }, pointB: { x: 5, y: -10 } });
+                { pointA: { x: 10, y: 35 }, pointB: { x: 5, y: -10 } });
             this.matter.add.constraint(this.character.head, this.character.chin, 10, .1,
-                { pointA: { x: -20, y: 45 }, pointB: { x: -5, y: -10 } });
+                { pointA: { x: -20, y: 35 }, pointB: { x: -5, y: -10 } });
+            this.matter.add.constraint(this.character.head, this.character.chin, 5, .08,
+                { pointA: { x: -5, y: 65 }, pointB: { x: 0, y: 20 } });
  
             Object.values(this.character).forEach((obj) => {
                 obj.setData("isCharacter", true);
@@ -406,7 +410,8 @@ gameScene.Boot.prototype = {
 
             this.ingredienser.kniv = this.matter.add.sprite(1860, 700, "kniv");
             this.ingredienser.kniv.setBody(this.ingredienser_colliders.kniv);
-            this.ingredienser.kniv.setData({ index: 26 });
+            this.ingredienser.kniv.setData({ stuckToWall: this.matter.add.constraint(this.hyllor.hyllaH3, this.ingredienser.kniv, 100, .05,
+                { pointA: { x: 0, y: 0 }, pointB: { x: 0, y: 50 } }), index: 26 });
 
             this.ingredienser.tallrik = this.matter.add.sprite(1800, 300, "tallrik");
             this.ingredienser.tallrik.setBody(this.ingredienser_colliders.tallrik);
@@ -442,6 +447,10 @@ gameScene.Boot.prototype = {
             this.ingredienser.tallrikbotten6.setData({ index: 33 });
             RemoveIngred(this.ingredienser.tallrikbotten6);
 
+            this.ingredienser.rosEllerHallon = this.matter.add.sprite(160, 500, "rosEllerHallon");
+            this.ingredienser.rosEllerHallon.setBody(this.ingredienser_colliders.rosEllerHallon);
+            this.ingredienser.rosEllerHallon.setData({ index: 34 });
+
             this.ingredienser.solglasogon = this.matter.add.sprite(1830, 500, "solglasogon");
             this.ingredienser.solglasogon.setBody(this.ingredienser_colliders.solglasogon);
             this.ingredienser.solglasogon.setData({ index: 69 });
@@ -458,8 +467,12 @@ gameScene.Boot.prototype = {
 
         this.barBackground = this.add.image(100, 110, "barBackground");
         this.barFill = this.add.image(100, 110, "barFill");
+        this.barComplete = this.add.image(100, 110, "barComplete");
 
-        console.log(this.barBackground);
+        {
+            /* this.winText = this.add.text(1920/2, 1080/2, "Snyggt bakat, fräääsig kaka.")
+                .setOrigin(.5).setFontFamily("Comic Sans MS").setFontSize(64).setColor("#b5e61d").setStroke(0, 4); */
+        }
     },
     update: function (frame, dt) {
         this.delay -= dt;
@@ -471,7 +484,22 @@ gameScene.Boot.prototype = {
         graphics.clear();
         graphics.lineStyle(10, 0x000000, 1).lineBetween(this.ingredienser.varmeLampa.getBottomCenter().x, this.ingredienser.varmeLampa.getBottomCenter().y, 
             this.hyllor.lampFaste.x, this.hyllor.lampFaste.y);
+
+        let slakt = this.ingredienser.kniv.getData("stuckToWall");
+        if(slakt){
+            graphics.lineStyle(10, 0x000000, 1).lineBetween(this.ingredienser.kniv.getBottomCenter().x, this.ingredienser.kniv.getBottomCenter().y, 
+            this.hyllor.hyllaH3.x, this.hyllor.hyllaH3.y);
         
+            let xVec = this.ingredienser.kniv.getBottomCenter().x - this.hyllor.hyllaH3.x;
+            let yVec = this.ingredienser.kniv.getBottomCenter().y - this.hyllor.hyllaH3.y;
+            let magKniv = Math.sqrt(xVec * xVec + yVec * yVec);
+            console.log(magKniv);
+            if(magKniv > 200) {
+                this.matter.world.remove(slakt);
+                this.ingredienser.kniv.setData("stuckToWall", false)
+            }
+        }
+
         if (!this.timerStopped)
         {
             //console.log(this.timerTxt);
@@ -505,6 +533,16 @@ gameScene.Boot.prototype = {
             this.barBackground._scaleY = 0.8;
             this.barBackground.width = 466 * this.barBackground._scaleX;
             this.barBackground.setX(1920 - txt.width - 10 + this.barBackground.width * 0.5);
+
+            if(receptProgress >= recept[nuvarandeSteg].max) {
+                this.barComplete._scaleX = this.barFill._scaleX;
+                this.barComplete._scaleY = 0.8;
+                this.barComplete.width = 442 * this.barComplete._scaleX;
+                this.barComplete.setX(1920 - txt.width + this.barComplete.width * 0.5);
+            }
+            else {
+                this.barComplete._scaleX = 0;
+            }
 
             txt.setText(recept[nuvarandeSteg].instruktion);
             txt.setX(1920 - txt.width - 10);

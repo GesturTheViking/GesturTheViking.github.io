@@ -1044,5 +1044,31 @@
 				]
 			}
 		]
+	},
+	"rosEllerHallon": {
+		"type": "fromPhysicsEditor",
+		"label": "rosEllerHallon",
+		"isStatic": false,
+		"density": 0.10000000149011612,
+		"restitution": 0,
+		"friction": 0.10000000149011612,
+		"frictionAir": 0.009999999776482582,
+		"frictionStatic": 0.5,
+		"collisionFilter": {
+			"group": 0,
+			"category": 1,
+			"mask": 255
+		},
+		"fixtures": [
+			{
+				"label": "",
+				"isSensor": false,
+				"vertices": [
+					[ { "x":24, "y":4 }, { "x":22, "y":23 }, { "x":36, "y":44 }, { "x":45, "y":19 }, { "x":45, "y":7 } ],
+					[ { "x":7, "y":30 }, { "x":9, "y":41 }, { "x":23, "y":44 }, { "x":36, "y":44 }, { "x":22, "y":23 } ],
+					[ { "x":23, "y":51 }, { "x":36, "y":44 }, { "x":23, "y":44 } ]
+				]
+			}
+		]
 	}
 }

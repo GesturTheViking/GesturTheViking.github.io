@@ -262,5 +262,19 @@ let recept = [
             RemoveIngred(scene.ingredienser.tallrikbotten5);
             SpawnIngredAt(scene.ingredienser.tallrikbotten6, x, y);
         }  
+    },
+    {
+        instruktion: "Lägg på rosen.",
+        objekt1: 33,
+        objekt2: 34,
+        max: 100,
+        callback: (scene) => {
+            let x = scene.ingredienser.tallrikbotten6.x;
+            let y = scene.ingredienser.tallrikbotten6.y;
+            
+            RemoveIngred(scene.ingredienser.rosEllerHallon);
+            RemoveIngred(scene.ingredienser.tallrikbotten6);
+            //SpawnIngredAt(scene.ingredienser.tallrikbotten7, x, y); Rose
+        }  
     }
 ];
