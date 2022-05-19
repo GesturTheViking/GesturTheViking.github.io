@@ -106,7 +106,7 @@ gameScene.Boot.prototype = {
         this.load.image("barBackground", "assets/sprites/barBackground.png");
         this.load.image("barComplete", "assets/sprites/barComplete.png");
 
-        this.load.image("particle", "assets/sprites/barComplete.png");
+        this.load.image("particle", "assets/sprites/defaultParticle.png");
 
         this.load.audio("aggKras", "assets/audio/aggKras.wav");
         this.load.audio("aggSpawn", "assets/audio/aggSpawn.wav");
@@ -417,7 +417,8 @@ gameScene.Boot.prototype = {
             this.particles = {};
             this.emitters = {};
             this.particles.default = this.add.particles("particle");
-            this.emitters.default = this.particles.default.createEmitter({ frequency: -1, scale: { start: 0.1, end: 0.2 }, }).setSpeed(200).setBlendMode(Phaser.BlendModes.ADD);
+            this.emitters.default = this.particles.default.createEmitter({ frequency: -1, scale: { start: 0.1, end: 0.2 }, }).setSpeed(200).setBlendMode(Phaser.BlendModes.NORMAL);
+            console.log(Phaser.BlendModes);
 
         }
         
