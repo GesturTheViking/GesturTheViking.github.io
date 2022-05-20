@@ -148,7 +148,6 @@ gameScene.Boot.prototype = {
         this.input.mouse.disableContextMenu();
         this.matter.world.setBounds();
         this.matter.set60Hz();
-        console.log(this.matter);
 
         this.gameMusic = this.sound.add("gameMusic", { loop: true }).setVolume(.075);
         this.gameMusic.play();
@@ -1017,6 +1016,22 @@ gameScene.Boot.prototype = {
         {
             return;
         }
+
+        Object.values(this.ingredienser).forEach((obj) => {
+            if(obj.x < -100) {
+                obj.x = 20;
+            }
+            if(obj.x > 2020) {
+                obj.x = 1900;
+            }
+
+            if(obj.y < -100) {
+                obj.y = 20;
+            }
+            if(obj.y > 1180) {
+                obj.y = 1060
+            }
+        });
 
         graphics.clear();
         graphics.lineStyle(10, 0x000000, 1).lineBetween(this.ingredienser.varmeLampa.getBottomCenter().x, this.ingredienser.varmeLampa.getBottomCenter().y, 
