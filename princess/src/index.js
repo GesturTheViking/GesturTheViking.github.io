@@ -473,7 +473,7 @@ gameScene.Boot.prototype = {
                         let velCharacterY = B.gameObject.body.velocity.y;
                         let magCharacter = Math.sqrt(velCharacterX * velCharacterX + velCharacterY * velCharacterY);
     
-                        if(magCharacter > 24){
+                        if(magCharacter > 26){
                             t.sounds.martenRamlarInIVaggen.play();
                             martenOntTimer = martenOntTime;
                         }
@@ -914,7 +914,7 @@ gameScene.Boot.prototype = {
 
             this.ingredienser.aggHel = [this.matter.add.sprite(60, 350, "aggHel")];
             this.ingredienser.aggHel[0].setBody(this.ingredienser_colliders.eggINTACT).setScale(0.8);
-            this.ingredienser.aggHel[0].setData({ index: 6, emitter: this.emitters.aggskal, eggIndex: aggCounter++, explodeCount: 10 });
+            this.ingredienser.aggHel[0].setData({ index: 6, emitter: this.emitters.aggskal, eggIndex: aggCounter++, explodeCount: 10, isIngrediens: true });
             RemoveIngred(this.ingredienser.aggHel[0]);
 
 
@@ -1212,18 +1212,26 @@ gameScene.Boot.prototype = {
         }
 
         Object.values(this.ingredienser).forEach((obj) => {
-            if(obj.x < -100) {
-                obj.x = 20;
+            if(obj.x < 0) {
+                obj.x = 100;
+                obj.setVelocityX(0);
+                obj.setVelocityY(0);
             }
-            if(obj.x > 2020) {
-                obj.x = 1900;
+            if(obj.x > 1920) {
+                obj.x = 1820;
+                obj.setVelocityX(0);
+                obj.setVelocityY(0);
             }
 
-            if(obj.y < -100) {
-                obj.y = 20;
+            if(obj.y < 0) {
+                obj.y = 100;
+                obj.setVelocityX(0);
+                obj.setVelocityY(0);
             }
-            if(obj.y > 1180) {
-                obj.y = 1060
+            if(obj.y > 1080) {
+                obj.y = 980
+                obj.setVelocityX(0);
+                obj.setVelocityY(0);
             }
         });
 

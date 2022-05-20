@@ -283,6 +283,11 @@ let recept = [
             RemoveIngred(scene.ingredienser.tallrikbotten4);
             SpawnIngredAt(scene.ingredienser.tallrikbotten5, x, y);
             SpawnIngredAt(scene.ingredienser.marsipantom, x, y-10);
+
+            scene.time.delayedCall(3000, () => 
+            {
+                scene.sounds.martenVilkenArFlourSocker.play();
+            });
         }  
     },
     {
@@ -298,8 +303,6 @@ let recept = [
             RemoveIngred(scene.ingredienser.tallrikbotten5);
             SpawnIngredAt(scene.ingredienser.tallrikbotten6, x, y);
             SpawnIngredAt(scene.ingredienser.florsockertom, x, y-10);
-
-            scene.sounds.martenVilkenArFlourSocker.play();
         }  
     },
     {
