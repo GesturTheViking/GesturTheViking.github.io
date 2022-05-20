@@ -30,6 +30,10 @@ var config = {
         text: '#ffffff',
         background: '#000000'
     },
+    fps: {
+        target: 60,
+        forceSetTimeOut: true
+    },      
     transparent: true
 };
 

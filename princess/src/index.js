@@ -106,7 +106,19 @@ gameScene.Boot.prototype = {
         this.load.image("barBackground", "assets/sprites/barBackground.png");
         this.load.image("barComplete", "assets/sprites/barComplete.png");
 
-        this.load.image("particle", "assets/sprites/defaultParticle.png");
+        this.load.image("particle", "assets/sprites/default.png");
+        this.load.image("graddepart", "assets/sprites/gräddePart.png");
+        this.load.image("vaniljsockerpart", "assets/sprites/vaniljsockerPartikle.png");
+        this.load.image("sockerpartikel", "assets/sprites/sockerPartikle.png");
+        this.load.image("bakpulverpartikel", "assets/sprites/bakpulverPartikle.png");
+        this.load.image("mjolpartikel", "assets/sprites/mjölpartikle.png");
+        this.load.image("marsipanpart", "assets/sprites/marsipanPart.png");
+        this.load.image("blod", "assets/sprites/blood.png");
+        this.load.image("el", "assets/sprites/el.png");
+        this.load.image("fjader", "assets/sprites/feather.png");
+        this.load.image("smet", "assets/sprites/smet.png");
+        this.load.image("stjarna", "assets/sprites/star.png");
+        this.load.image("aggskal", "assets/sprites/äggskal.png");
 
         this.load.audio("aggKras", "assets/audio/aggKras.wav");
         this.load.audio("aggSpawn", "assets/audio/aggSpawn.wav");
@@ -224,13 +236,15 @@ gameScene.Boot.prototype = {
                             ingredientAddTimer = ingredientAddTime;
 
                             let emitterA = A.gameObject.getData("emitter")
-                            if(emitterA){
-                                emitterA.explode(10, A.gameObject.x, A.gameObject.y)
+                            let emitterExplodeCountA = A.gameObject.getData("explodeCount")
+                            if(emitterA && emitterExplodeCountA){
+                                emitterA.explode(emitterExplodeCountA, A.gameObject.x, A.gameObject.y)
                             }
 
                             let emitterB = B.gameObject.getData("emitter")
-                            if(emitterB){
-                                emitterB.explode(10, B.gameObject.x, B.gameObject.y)
+                            let emitterExplodeCountB = B.gameObject.getData("explodeCount")
+                            if(emitterB && emitterExplodeCountB){
+                                emitterB.explode(emitterExplodeCountB, B.gameObject.x, B.gameObject.y)
                             }
                         }
                     }
@@ -283,8 +297,9 @@ gameScene.Boot.prototype = {
                             ingredientAddTimer = ingredientAddTime;
 
                             let emitterB = B.gameObject.getData("emitter")
-                            if(emitterB){
-                                emitterB.explode(10, B.gameObject.x, B.gameObject.y)
+                            let emitterExplodeCountB = B.gameObject.getData("explodeCount");
+                            if(emitterB && emitterExplodeCountB){
+                                emitterB.explode(emitterExplodeCountB, B.gameObject.x, B.gameObject.y)
                             }
                         }
                     }
@@ -323,9 +338,10 @@ gameScene.Boot.prototype = {
                             ingredientCollisionSoundTimer = ingredientCollisionSoundTime;
                         }
 
-                        let emitterB = B.gameObject.getData("emitter")
-                            if(emitterB){
-                                emitterB.explode(10, B.gameObject.x, B.gameObject.y)
+                        let emitterB = B.gameObject.getData("emitter");
+                        let emitterExplodeCountB = B.gameObject.getData("explodeCount");
+                            if(emitterB && emitterExplodeCountB){
+                                emitterB.explode(emitterExplodeCountB, B.gameObject.x, B.gameObject.y)
                             }
                     }
                 }
@@ -416,10 +432,292 @@ gameScene.Boot.prototype = {
         {
             this.particles = {};
             this.emitters = {};
-            this.particles.default = this.add.particles("particle");
-            this.emitters.default = this.particles.default.createEmitter({ frequency: -1, scale: { start: 0.1, end: 0.2 }, }).setSpeed(200).setBlendMode(Phaser.BlendModes.NORMAL);
-            console.log(Phaser.BlendModes);
 
+            this.particles.default = this.add.particles("particle");
+            this.emitters.default = this.particles.default.createEmitter({ frequency: -1, scale: { start: 1.0, end: 0.2 }, lifespan: 300, 
+                speed: {
+                    onEmit: function (particle, key, t, value)
+                    {
+                        return Math.random() * 200;
+                    }
+                },
+                lifespan: {
+                    onEmit: function (particle, key, t, value)
+                    {
+                        return Math.random() * 400 + 200;
+                    }
+                },
+                rotate: {
+                    onEmit: function (particle, key, t, value)
+                    {
+                        return Math.random() * 360;
+                    }
+                },
+             }).setBlendMode(Phaser.BlendModes.NORMAL);
+
+            this.particles.gradde = this.add.particles("graddepart");
+            this.emitters.gradde = this.particles.gradde.createEmitter({ frequency: -1, scale: { start: 1.0, end: 0.2 }, lifespan: 300, 
+                speed: {
+                    onEmit: function (particle, key, t, value)
+                    {
+                        return Math.random() * 200;
+                    }
+                },
+                lifespan: {
+                    onEmit: function (particle, key, t, value)
+                    {
+                        return Math.random() * 400 + 200;
+                    }
+                },
+                rotate: {
+                    onEmit: function (particle, key, t, value)
+                    {
+                        return Math.random() * 360;
+                    }
+                },
+             }).setBlendMode(Phaser.BlendModes.NORMAL);
+            
+            this.particles.vaniljsocker = this.add.particles("vaniljsockerpart");
+            this.emitters.vaniljsocker = this.particles.vaniljsocker.createEmitter({ frequency: -1, scale: { start: 1.0, end: 0.2 }, lifespan: 300, 
+                speed: {
+                    onEmit: function (particle, key, t, value)
+                    {
+                        return Math.random() * 200;
+                    }
+                },
+                lifespan: {
+                    onEmit: function (particle, key, t, value)
+                    {
+                        return Math.random() * 400 + 200;
+                    }
+                },
+                rotate: {
+                    onEmit: function (particle, key, t, value)
+                    {
+                        return Math.random() * 360;
+                    }
+                },
+             }).setBlendMode(Phaser.BlendModes.NORMAL);
+
+            this.particles.socker = this.add.particles("sockerpartikel");
+            this.emitters.socker = this.particles.socker.createEmitter({ frequency: -1, scale: { start: 1.0, end: 0.2 }, lifespan: 300, 
+                speed: {
+                    onEmit: function (particle, key, t, value)
+                    {
+                        return Math.random() * 200;
+                    }
+                },
+                lifespan: {
+                    onEmit: function (particle, key, t, value)
+                    {
+                        return Math.random() * 400 + 200;
+                    }
+                },
+                rotate: {
+                    onEmit: function (particle, key, t, value)
+                    {
+                        return Math.random() * 360;
+                    }
+                },
+             }).setBlendMode(Phaser.BlendModes.NORMAL);
+
+            this.particles.bakpulver = this.add.particles("bakpulverpartikel");
+            this.emitters.bakpulver = this.particles.bakpulver.createEmitter({ frequency: -1, scale: { start: 1.0, end: 0.2 }, lifespan: 300, 
+                speed: {
+                    onEmit: function (particle, key, t, value)
+                    {
+                        return Math.random() * 200;
+                    }
+                },
+                lifespan: {
+                    onEmit: function (particle, key, t, value)
+                    {
+                        return Math.random() * 400 + 200;
+                    }
+                },
+                rotate: {
+                    onEmit: function (particle, key, t, value)
+                    {
+                        return Math.random() * 360;
+                    }
+                },
+             }).setBlendMode(Phaser.BlendModes.NORMAL);
+
+            this.particles.mjolpartikel = this.add.particles("mjolpartikel");
+            this.emitters.mjolpartikel = this.particles.mjolpartikel.createEmitter({ frequency: -1, scale: { start: 1.0, end: 0.2 }, lifespan: 300, 
+                speed: {
+                    onEmit: function (particle, key, t, value)
+                    {
+                        return Math.random() * 200;
+                    }
+                },
+                lifespan: {
+                    onEmit: function (particle, key, t, value)
+                    {
+                        return Math.random() * 400 + 200;
+                    }
+                },
+                rotate: {
+                    onEmit: function (particle, key, t, value)
+                    {
+                        return Math.random() * 360;
+                    }
+                },
+             }).setBlendMode(Phaser.BlendModes.NORMAL);
+
+            this.particles.marsipanpartikel = this.add.particles("marsipanpart");
+            this.emitters.marsipanpartikel = this.particles.marsipanpartikel.createEmitter({ frequency: -1, scale: { start: 1.0, end: 0.2 }, lifespan: 300, 
+                speed: {
+                    onEmit: function (particle, key, t, value)
+                    {
+                        return Math.random() * 200;
+                    }
+                },
+                lifespan: {
+                    onEmit: function (particle, key, t, value)
+                    {
+                        return Math.random() * 400 + 200;
+                    }
+                },
+                rotate: {
+                    onEmit: function (particle, key, t, value)
+                    {
+                        return Math.random() * 360;
+                    }
+                },
+             }).setBlendMode(Phaser.BlendModes.NORMAL);
+
+            this.particles.blod = this.add.particles("blod");
+            this.emitters.blod = this.particles.blod.createEmitter({ frequency: -1, scale: { start: 1.0, end: 0.2 }, lifespan: 300, 
+                speed: {
+                    onEmit: function (particle, key, t, value)
+                    {
+                        return Math.random() * 200;
+                    }
+                },
+                lifespan: {
+                    onEmit: function (particle, key, t, value)
+                    {
+                        return Math.random() * 400 + 200;
+                    }
+                },
+                rotate: {
+                    onEmit: function (particle, key, t, value)
+                    {
+                        return Math.random() * 360;
+                    }
+                },
+             }).setBlendMode(Phaser.BlendModes.NORMAL);
+
+            this.particles.el = this.add.particles("el");
+            this.emitters.el = this.particles.el.createEmitter({ frequency: -1, scale: { start: 1.0, end: 0.2 }, lifespan: 300, 
+                speed: {
+                    onEmit: function (particle, key, t, value)
+                    {
+                        return Math.random() * 200;
+                    }
+                },
+                lifespan: {
+                    onEmit: function (particle, key, t, value)
+                    {
+                        return Math.random() * 400 + 200;
+                    }
+                },
+                rotate: {
+                    onEmit: function (particle, key, t, value)
+                    {
+                        return Math.random() * 360;
+                    }
+                },
+             }).setBlendMode(Phaser.BlendModes.NORMAL);
+
+            this.particles.fjader = this.add.particles("fjader");
+            this.emitters.fjader = this.particles.fjader.createEmitter({ frequency: -1, scale: { start: 1.0, end: 0.2 }, lifespan: 300, 
+                speed: {
+                    onEmit: function (particle, key, t, value)
+                    {
+                        return Math.random() * 200;
+                    }
+                },
+                lifespan: {
+                    onEmit: function (particle, key, t, value)
+                    {
+                        return Math.random() * 400 + 200;
+                    }
+                },
+                rotate: {
+                    onEmit: function (particle, key, t, value)
+                    {
+                        return Math.random() * 360;
+                    }
+                },
+             }).setBlendMode(Phaser.BlendModes.NORMAL);
+
+            this.particles.smet = this.add.particles("smet");
+            this.emitters.smet = this.particles.smet.createEmitter({ frequency: -1, scale: { start: 1.0, end: 0.2 }, lifespan: 300, 
+                speed: {
+                    onEmit: function (particle, key, t, value)
+                    {
+                        return Math.random() * 200;
+                    }
+                },
+                lifespan: {
+                    onEmit: function (particle, key, t, value)
+                    {
+                        return Math.random() * 400 + 200;
+                    }
+                },
+                rotate: {
+                    onEmit: function (particle, key, t, value)
+                    {
+                        return Math.random() * 360;
+                    }
+                },
+             }).setBlendMode(Phaser.BlendModes.NORMAL);
+
+            this.particles.stjarna = this.add.particles("stjarna");
+            this.emitters.stjarna = this.particles.stjarna.createEmitter({ frequency: -1, scale: { start: 1.0, end: 0.2 }, lifespan: 300, 
+                speed: {
+                    onEmit: function (particle, key, t, value)
+                    {
+                        return Math.random() * 200;
+                    }
+                },
+                lifespan: {
+                    onEmit: function (particle, key, t, value)
+                    {
+                        return Math.random() * 400 + 200;
+                    }
+                },
+                rotate: {
+                    onEmit: function (particle, key, t, value)
+                    {
+                        return Math.random() * 360;
+                    }
+                },
+             }).setBlendMode(Phaser.BlendModes.NORMAL);
+
+            this.particles.aggskal = this.add.particles("aggskal");
+            this.emitters.aggskal = this.particles.aggskal.createEmitter({ frequency: -1, scale: { start: 1.0, end: 0.2 }, lifespan: 300, 
+                speed: {
+                    onEmit: function (particle, key, t, value)
+                    {
+                        return Math.random() * 200;
+                    }
+                },
+                lifespan: {
+                    onEmit: function (particle, key, t, value)
+                    {
+                        return Math.random() * 400 + 200;
+                    }
+                },
+                rotate: {
+                    onEmit: function (particle, key, t, value)
+                    {
+                        return Math.random() * 360;
+                    }
+                },
+             }).setBlendMode(Phaser.BlendModes.NORMAL);
         }
         
         graphics = this.add.graphics();
@@ -454,60 +752,60 @@ gameScene.Boot.prototype = {
 
             this.ingredienser.bunke = this.matter.add.sprite(1830, 230, "bunke");
             this.ingredienser.bunke.setBody(this.ingredienser_colliders.bowl).setScale(0.5);
-            this.ingredienser.bunke.setData({ isBunke: true, index: 0, emitter: this.emitters.default });
+            this.ingredienser.bunke.setData({ isBunke: true, index: 0, emitter: this.emitters.default, explodeCount: 10 });
 
             this.ingredienser.mjol = this.matter.add.sprite(160, 230, "mjol");
             this.ingredienser.mjol.setBody(this.ingredienser_colliders.mjol).setScale(0.5);
-            this.ingredienser.mjol.setData({ index: 1, emitter: this.emitters.default });
+            this.ingredienser.mjol.setData({ index: 1, emitter: this.emitters.mjolpartikel, explodeCount: 10 });
 
             this.ingredienser.bakpulver = this.matter.add.sprite(100, 230, "bakpulver");
             this.ingredienser.bakpulver.setBody(this.ingredienser_colliders.bakpulver).setScale(1.0);
-            this.ingredienser.bakpulver.setData({ index: 2, emitter: this.emitters.default });
+            this.ingredienser.bakpulver.setData({ index: 2, emitter: this.emitters.bakpulver, explodeCount: 10 });
 
             this.ingredienser.gronFagel = this.matter.add.sprite(60, 200, "gronFagel");
             this.ingredienser.gronFagel.setBody(this.ingredienser_colliders.blue).setScale(0.5);
-            this.ingredienser.gronFagel.setData({ index: 3, emitter: this.emitters.default });
+            this.ingredienser.gronFagel.setData({ index: 3, emitter: this.emitters.default, explodeCount: 10 });
             RemoveIngred(this.ingredienser.gronFagel);
 
             this.ingredienser.hona = this.matter.add.sprite(1860, 1000, "hona");
             this.ingredienser.hona.setBody(this.ingredienser_colliders.chicken).setScale(0.5);
-            this.ingredienser.hona.setData({ index: 4, emitter: this.emitters.default });
+            this.ingredienser.hona.setData({ index: 4, emitter: this.emitters.fjader, explodeCount: 10 });
 
             this.ingredienser.agg = this.matter.add.sprite(60, 300, "agg");
             this.ingredienser.agg.setBody(this.ingredienser_colliders.egg).setScale(0.8);
-            this.ingredienser.agg.setData({ index: 5, emitter: this.emitters.default });
+            this.ingredienser.agg.setData({ index: 5, emitter: this.emitters.default, explodeCount: 10 });
             RemoveIngred(this.ingredienser.agg);
 
             this.ingredienser.aggHel = this.matter.add.sprite(60, 350, "aggHel");
             this.ingredienser.aggHel.setBody(this.ingredienser_colliders.eggINTACT).setScale(0.8);
-            this.ingredienser.aggHel.setData({ index: 6, emitter: this.emitters.default });
+            this.ingredienser.aggHel.setData({ index: 6, emitter: this.emitters.aggskal, explodeCount: 10 });
             RemoveIngred(this.ingredienser.aggHel);
 
             this.ingredienser.florSocker = this.matter.add.sprite(40, 420, "florsocker");
             this.ingredienser.florSocker.setBody(this.ingredienser_colliders.florsocker).setScale(0.7);
-            this.ingredienser.florSocker.setData({ index: 7, emitter: this.emitters.default });
+            this.ingredienser.florSocker.setData({ index: 7, emitter: this.emitters.socker, explodeCount: 10 });
 
             this.ingredienser.spelSylt = this.matter.add.sprite(60, 580, "spelsylt");
             this.ingredienser.spelSylt.setBody(this.ingredienser_colliders.gamejam).setScale(1.0);
-            this.ingredienser.spelSylt.setData({ index: 8, emitter: this.emitters.default });
+            this.ingredienser.spelSylt.setData({ index: 8, emitter: this.emitters.blod, explodeCount: 10 });
             RemoveIngred(this.ingredienser.spelSylt);
 
             this.ingredienser.blaFagel = this.matter.add.sprite(60, 500, "blaFagel");
             this.ingredienser.blaFagel.setBody(this.ingredienser_colliders.green).setScale(0.5);
-            this.ingredienser.blaFagel.setData({ index: 9, emitter: this.emitters.default });
+            this.ingredienser.blaFagel.setData({ index: 9, emitter: this.emitters.default, explodeCount: 10 });
             RemoveIngred(this.ingredienser.blaFagel);
 
             this.ingredienser.gradde = this.matter.add.sprite(120, 650, "gradde");
             this.ingredienser.gradde.setBody(this.ingredienser_colliders.gradde).setScale(0.7);
-            this.ingredienser.gradde.setData({ index: 10, emitter: this.emitters.default });
+            this.ingredienser.gradde.setData({ index: 10, emitter: this.emitters.gradde, explodeCount: 10 });
 
             this.ingredienser.marsipan = this.matter.add.sprite(60, 680, "marsipan");
             this.ingredienser.marsipan.setBody(this.ingredienser_colliders.marsipan).setScale(0.7);
-            this.ingredienser.marsipan.setData({ index: 11, emitter: this.emitters.default });
+            this.ingredienser.marsipan.setData({ index: 11, emitter: this.emitters.marsipanpartikel, explodeCount: 10 });
 
             this.ingredienser.mikroAv = this.matter.add.sprite(1830, 680, "mikroAv");
             this.ingredienser.mikroAv.setBody(this.ingredienser_colliders.mikroOff).setScale(0.25);
-            this.ingredienser.mikroAv.setData({ mikro: true, index: 12, emitter: this.emitters.default });
+            this.ingredienser.mikroAv.setData({ mikro: true, index: 12, emitter: this.emitters.default, explodeCount: 10 });
 
             /*this.ingredienser.mikroPa = this.matter.add.sprite(1860, 150, "mikroPa");
             this.ingredienser.mikroPa.setBody(this.ingredienser_colliders.mikroON).setScale(0.25);
@@ -515,160 +813,160 @@ gameScene.Boot.prototype = {
 
             this.ingredienser.potatisMjol = this.matter.add.sprite(40, 230, "potatisMjol");
             this.ingredienser.potatisMjol.setBody(this.ingredienser_colliders.potatisMjöl).setScale(0.7);
-            this.ingredienser.potatisMjol.setData({ index: 14, emitter: this.emitters.default });
+            this.ingredienser.potatisMjol.setData({ index: 14, emitter: this.emitters.mjolpartikel, explodeCount: 10 });
 
             this.ingredienser.raKyckling = this.matter.add.sprite(1860, 250, "raKyckling");
             this.ingredienser.raKyckling.setBody(this.ingredienser_colliders.RAW).setScale(0.5);
-            this.ingredienser.raKyckling.setData({ index: 15, emitter: this.emitters.default });
+            this.ingredienser.raKyckling.setData({ index: 15, emitter: this.emitters.default, explodeCount: 10 });
             RemoveIngred(this.ingredienser.raKyckling);
 
             this.ingredienser.skal = this.matter.add.sprite(1860, 300, "skal");
             this.ingredienser.skal.setBody(this.ingredienser_colliders.skal).setScale(0.8);
-            this.ingredienser.skal.setData({ index: 16, emitter: this.emitters.default });
+            this.ingredienser.skal.setData({ index: 16, emitter: this.emitters.aggskal, explodeCount: 10 });
             RemoveIngred(this.ingredienser.skal);
 
             this.ingredienser.sked = this.matter.add.sprite(1860, 410, "sked");
             this.ingredienser.sked.setBody(this.ingredienser_colliders.sked).setScale(0.7);
-            this.ingredienser.sked.setData({ index: 17, emitter: this.emitters.default });
+            this.ingredienser.sked.setData({ index: 17, emitter: this.emitters.default, explodeCount: 10 });
 
             this.ingredienser.socker = this.matter.add.sprite(100, 420, "socker");
             this.ingredienser.socker.setBody(this.ingredienser_colliders.socker).setScale(0.7);
-            this.ingredienser.socker.setData({ index: 18, emitter: this.emitters.default });
+            this.ingredienser.socker.setData({ index: 18, emitter: this.emitters.socker, explodeCount: 10 });
 
             this.ingredienser.kycklingBrostFile = this.matter.add.sprite(1860, 450, "kycklingBrostFile");
             this.ingredienser.kycklingBrostFile.setBody(this.ingredienser_colliders.tiddy).setScale(0.7);
-            this.ingredienser.kycklingBrostFile.setData({ index: 19, emitter: this.emitters.default });
+            this.ingredienser.kycklingBrostFile.setData({ index: 19, emitter: this.emitters.default, explodeCount: 10 });
             RemoveIngred(this.ingredienser.kycklingBrostFile);
 
             this.ingredienser.vaniljSocker = this.matter.add.sprite(150, 420, "vaniljSocker");
             this.ingredienser.vaniljSocker.setBody(this.ingredienser_colliders.vaniljSocker).setScale(1.0);
-            this.ingredienser.vaniljSocker.setData({ index: 20, emitter: this.emitters.default });
+            this.ingredienser.vaniljSocker.setData({ index: 20, emitter: this.emitters.vaniljsocker, explodeCount: 10 });
 
             this.ingredienser.visp = this.matter.add.sprite(1830, 180, "visp");
             this.ingredienser.visp.setBody(this.ingredienser_colliders.visp).setScale(0.7);
-            this.ingredienser.visp.setData({ index: 21, emitter: this.emitters.default });
+            this.ingredienser.visp.setData({ index: 21, emitter: this.emitters.default, explodeCount: 10 });
 
             this.ingredienser.varmeLampa = this.matter.add.sprite(960, 100, "varmeLampa");
             this.ingredienser.varmeLampa.setBody(this.ingredienser_colliders.warmLamp).setScale(0.7);
-            this.ingredienser.varmeLampa.setData({ index: 22, emitter: this.emitters.default });
+            this.ingredienser.varmeLampa.setData({ index: 22, emitter: this.emitters.el, explodeCount: 10 });
             this.matter.add.constraint(this.hyllor.lampFaste, this.ingredienser.varmeLampa, 100, .05,
                 { pointA: { x: 0, y: 0 }, pointB: { x: 0, y: 50 } });
 
             this.ingredienser.tartbottenHel = this.matter.add.sprite(1860, 650, "tartbottenHel");
             this.ingredienser.tartbottenHel.setBody(this.ingredienser_colliders.tartbottenHel);
-            this.ingredienser.tartbottenHel.setData({ index: 23, emitter: this.emitters.default });
+            this.ingredienser.tartbottenHel.setData({ index: 23, emitter: this.emitters.default, explodeCount: 10 });
             RemoveIngred(this.ingredienser.tartbottenHel);
 
             this.ingredienser.tartbottenHalv1 = this.matter.add.sprite(1860, 700, "tartbottenHalv");
             this.ingredienser.tartbottenHalv1.setBody(this.ingredienser_colliders.tartbottenHalv1);
-            this.ingredienser.tartbottenHalv1.setData({ index: 24, emitter: this.emitters.default });
+            this.ingredienser.tartbottenHalv1.setData({ index: 24, emitter: this.emitters.default, explodeCount: 10 });
             RemoveIngred(this.ingredienser.tartbottenHalv1);
             this.ingredienser.tartbottenHalv2 = this.matter.add.sprite(1860, 700, "tartbottenHalv");
             this.ingredienser.tartbottenHalv2.setBody(this.ingredienser_colliders.tartbottenHalv2);
-            this.ingredienser.tartbottenHalv2.setData({ index: 25, emitter: this.emitters.default });
+            this.ingredienser.tartbottenHalv2.setData({ index: 25, emitter: this.emitters.default, explodeCount: 10 });
             RemoveIngred(this.ingredienser.tartbottenHalv2);
 
             this.ingredienser.kniv = this.matter.add.sprite(1860, 830, "kniv");
             this.ingredienser.kniv.setBody(this.ingredienser_colliders.kniv);
             this.ingredienser.kniv.setData({ stuckToWall: this.matter.add.constraint(this.hyllor.hyllaH3, this.ingredienser.kniv, 100, .05,
-                { pointA: { x: 0, y: 0 }, pointB: { x: 0, y: 50 } }), index: 26, emitter: this.emitters.default });
+                { pointA: { x: 0, y: 0 }, pointB: { x: 0, y: 50 } }), index: 26, emitter: this.emitters.default, explodeCount: 10 });
 
             this.ingredienser.tallrik = this.matter.add.sprite(1800, 430, "tallrik");
             this.ingredienser.tallrik.setBody(this.ingredienser_colliders.tallrik);
-            this.ingredienser.tallrik.setData({ index: 27, emitter: this.emitters.default });
+            this.ingredienser.tallrik.setData({ index: 27, emitter: this.emitters.default, explodeCount: 10 });
 
             this.ingredienser.tallrikbotten1 = this.matter.add.sprite(1160, 1000, "tallrikbotten1");
             this.ingredienser.tallrikbotten1.setBody(this.ingredienser_colliders.tallrikbotten1);
-            this.ingredienser.tallrikbotten1.setData({ index: 28, emitter: this.emitters.default });
+            this.ingredienser.tallrikbotten1.setData({ index: 28, emitter: this.emitters.default, explodeCount: 10 });
             RemoveIngred(this.ingredienser.tallrikbotten1);
 
             this.ingredienser.tallrikbotten2 = this.matter.add.sprite(1160, 1000, "tallrikbotten2");
             this.ingredienser.tallrikbotten2.setBody(this.ingredienser_colliders.tallrikbotten2);
-            this.ingredienser.tallrikbotten2.setData({ index: 29, emitter: this.emitters.default });
+            this.ingredienser.tallrikbotten2.setData({ index: 29, emitter: this.emitters.default, explodeCount: 10 });
             RemoveIngred(this.ingredienser.tallrikbotten2);
 
             this.ingredienser.tallrikbotten3 = this.matter.add.sprite(1160, 1000, "tallrikbotten3");
             this.ingredienser.tallrikbotten3.setBody(this.ingredienser_colliders.tallrikbotten3);
-            this.ingredienser.tallrikbotten3.setData({ index: 30, emitter: this.emitters.default });
+            this.ingredienser.tallrikbotten3.setData({ index: 30, emitter: this.emitters.default, explodeCount: 10 });
             RemoveIngred(this.ingredienser.tallrikbotten3);
 
             this.ingredienser.tallrikbotten4 = this.matter.add.sprite(1160, 1000, "tallrikbotten4");
             this.ingredienser.tallrikbotten4.setBody(this.ingredienser_colliders.tallrikbotten4);
-            this.ingredienser.tallrikbotten4.setData({ index: 31, emitter: this.emitters.default });
+            this.ingredienser.tallrikbotten4.setData({ index: 31, emitter: this.emitters.default, explodeCount: 10 });
             RemoveIngred(this.ingredienser.tallrikbotten4);
 
             this.ingredienser.tallrikbotten5 = this.matter.add.sprite(1160, 1000, "tallrikbotten5");
             this.ingredienser.tallrikbotten5.setBody(this.ingredienser_colliders.tallrikbotten5);
-            this.ingredienser.tallrikbotten5.setData({ index: 32, emitter: this.emitters.default });
+            this.ingredienser.tallrikbotten5.setData({ index: 32, emitter: this.emitters.default, explodeCount: 10 });
             RemoveIngred(this.ingredienser.tallrikbotten5);
 
             this.ingredienser.tallrikbotten6 = this.matter.add.sprite(1160, 1000, "tallrikbotten6");
             this.ingredienser.tallrikbotten6.setBody(this.ingredienser_colliders.tallrikbotten6);
-            this.ingredienser.tallrikbotten6.setData({ index: 33, emitter: this.emitters.default });
+            this.ingredienser.tallrikbotten6.setData({ index: 33, emitter: this.emitters.default, explodeCount: 10 });
             RemoveIngred(this.ingredienser.tallrikbotten6);
             
             this.ingredienser.tallrikbotten7 = this.matter.add.sprite(1160, 1000, "tallrikbotten7");
             this.ingredienser.tallrikbotten7.setBody(this.ingredienser_colliders.tallrikbotten7);
-            this.ingredienser.tallrikbotten7.setData({ index: 34, emitter: this.emitters.default });
+            this.ingredienser.tallrikbotten7.setData({ index: 34, emitter: this.emitters.default, explodeCount: 10 });
             RemoveIngred(this.ingredienser.tallrikbotten7);
 
             this.ingredienser.rosEllerHallon = this.matter.add.sprite(160, 630, "rosEllerHallon");
             this.ingredienser.rosEllerHallon.setBody(this.ingredienser_colliders.rosEllerHallon);
-            this.ingredienser.rosEllerHallon.setData({ index: 35, emitter: this.emitters.default });
+            this.ingredienser.rosEllerHallon.setData({ index: 35, emitter: this.emitters.default, explodeCount: 10 });
 
             this.ingredienser.bakpulverlock = this.matter.add.sprite(160, 630, "bakpulverlock");
             this.ingredienser.bakpulverlock.setBody(this.ingredienser_colliders.bakpulverlock);
-            this.ingredienser.bakpulverlock.setData({ index: 36, emitter: this.emitters.default });
+            this.ingredienser.bakpulverlock.setData({ index: 36, emitter: this.emitters.default, explodeCount: 10 });
             RemoveIngred(this.ingredienser.bakpulverlock);
 
             this.ingredienser.marsipantom = this.matter.add.sprite(160, 630, "marsipantom");
             this.ingredienser.marsipantom.setBody(this.ingredienser_colliders.marsipantom);
-            this.ingredienser.marsipantom.setData({ index: 37, emitter: this.emitters.default });
+            this.ingredienser.marsipantom.setData({ index: 37, emitter: this.emitters.default, explodeCount: 10 });
             RemoveIngred(this.ingredienser.marsipantom);
 
             this.ingredienser.spelsylttom = this.matter.add.sprite(160, 630, "spelsylttom");
             this.ingredienser.spelsylttom.setBody(this.ingredienser_colliders.spelsylttom);
-            this.ingredienser.spelsylttom.setData({ index: 38, emitter: this.emitters.default });
+            this.ingredienser.spelsylttom.setData({ index: 38, emitter: this.emitters.default, explodeCount: 10 });
             RemoveIngred(this.ingredienser.spelsylttom);
 
             this.ingredienser.vaniljlock = this.matter.add.sprite(160, 630, "vaniljlock");
             this.ingredienser.vaniljlock.setBody(this.ingredienser_colliders.vaniljlock);
-            this.ingredienser.vaniljlock.setData({ index: 39, emitter: this.emitters.default });
+            this.ingredienser.vaniljlock.setData({ index: 39, emitter: this.emitters.default, explodeCount: 10 });
             RemoveIngred(this.ingredienser.vaniljlock);
 
             this.ingredienser.vaniljtom = this.matter.add.sprite(160, 630, "vaniljtom");
             this.ingredienser.vaniljtom.setBody(this.ingredienser_colliders.vaniljtom);
-            this.ingredienser.vaniljtom.setData({ index: 39, emitter: this.emitters.default });
+            this.ingredienser.vaniljtom.setData({ index: 39, emitter: this.emitters.default, explodeCount: 10 });
             RemoveIngred(this.ingredienser.vaniljtom);
 
             this.ingredienser.mjoltom = this.matter.add.sprite(160, 630, "mjoltom");
             this.ingredienser.mjoltom.setBody(this.ingredienser_colliders.mjoltom).setScale(0.5);
-            this.ingredienser.mjoltom.setData({ index: 40, emitter: this.emitters.default });
+            this.ingredienser.mjoltom.setData({ index: 40, emitter: this.emitters.default, explodeCount: 10 });
             RemoveIngred(this.ingredienser.mjoltom);
 
             this.ingredienser.florsockertom = this.matter.add.sprite(160, 630, "florsockertom");
             this.ingredienser.florsockertom.setBody(this.ingredienser_colliders.florsockertom);
-            this.ingredienser.florsockertom.setData({ index: 41, emitter: this.emitters.default });
+            this.ingredienser.florsockertom.setData({ index: 41, emitter: this.emitters.default, explodeCount: 10 });
             RemoveIngred(this.ingredienser.florsockertom);
 
             this.ingredienser.sockertom = this.matter.add.sprite(160, 630, "sockertom");
             this.ingredienser.sockertom.setBody(this.ingredienser_colliders.sockertom);
-            this.ingredienser.sockertom.setData({ index: 42, emitter: this.emitters.default });
+            this.ingredienser.sockertom.setData({ index: 42, emitter: this.emitters.default, explodeCount: 10 });
             RemoveIngred(this.ingredienser.sockertom);
 
             this.ingredienser.potatismjoltom = this.matter.add.sprite(160, 630, "potatismjoltom");
             this.ingredienser.potatismjoltom.setBody(this.ingredienser_colliders.potatismjoltom).setScale(0.5);
-            this.ingredienser.potatismjoltom.setData({ index: 43, emitter: this.emitters.default });
+            this.ingredienser.potatismjoltom.setData({ index: 43, emitter: this.emitters.default, explodeCount: 10 });
             RemoveIngred(this.ingredienser.potatismjoltom);
             
             this.ingredienser.bakpulvertom = this.matter.add.sprite(160, 630, "bakpulvertom");
             this.ingredienser.bakpulvertom.setBody(this.ingredienser_colliders.bakpulvertom);
-            this.ingredienser.bakpulvertom.setData({ index: 44, emitter: this.emitters.default });
+            this.ingredienser.bakpulvertom.setData({ index: 44, emitter: this.emitters.default, explodeCount: 10 });
             RemoveIngred(this.ingredienser.bakpulvertom);
 
             this.ingredienser.solglasogon = this.matter.add.sprite(1830, 630, "solglasogon");
             this.ingredienser.solglasogon.setBody(this.ingredienser_colliders.solglasogon);
-            this.ingredienser.solglasogon.setData({ index: 69, emitter: this.emitters.default });
+            this.ingredienser.solglasogon.setData({ index: 69, emitter: this.emitters.default, explodeCount: 10 });
 
             Object.values(this.ingredienser).forEach((obj) => {
                 obj.setData("isIngrediens", true);
