@@ -108,8 +108,8 @@ gameScene.Boot.prototype = {
 
         this.load.image("particle", "assets/sprites/default.png");
         this.load.image("graddepart", "assets/sprites/gräddePart.png");
-        this.load.image("vaniljsockerpart", "assets/sprites/vaniljsockerPartikle.png");
-        this.load.image("sockerpartikel", "assets/sprites/sockerPartikle.png");
+        this.load.image("vaniljsockerpart", "assets/sprites/vaniljsockerpartikle.png");
+        this.load.image("sockerpartikel", "assets/sprites/sockerpartikle.png");
         this.load.image("bakpulverpartikel", "assets/sprites/bakpulverPartikle.png");
         this.load.image("mjolpartikel", "assets/sprites/mjölpartikle.png");
         this.load.image("marsipanpart", "assets/sprites/marsipanPart.png");
@@ -147,6 +147,7 @@ gameScene.Boot.prototype = {
         t = this;
         this.input.mouse.disableContextMenu();
         this.matter.world.setBounds();
+        this.matter.set60Hz();
 
         this.gameMusic = this.sound.add("gameMusic", { loop: true }).setVolume(.075);
         this.gameMusic.play();
@@ -848,7 +849,7 @@ gameScene.Boot.prototype = {
 
             this.ingredienser.varmeLampa = this.matter.add.sprite(960, 100, "varmeLampa");
             this.ingredienser.varmeLampa.setBody(this.ingredienser_colliders.warmLamp).setScale(0.7);
-            this.ingredienser.varmeLampa.setData({ index: 22, emitter: this.emitters.el, explodeCount: 10 });
+            this.ingredienser.varmeLampa.setData({ index: 22, emitter: this.emitters.el, explodeCount: 4 });
             this.matter.add.constraint(this.hyllor.lampFaste, this.ingredienser.varmeLampa, 100, .05,
                 { pointA: { x: 0, y: 0 }, pointB: { x: 0, y: 50 } });
 
