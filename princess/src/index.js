@@ -148,6 +148,7 @@ gameScene.Boot.prototype = {
         this.input.mouse.disableContextMenu();
         this.matter.world.setBounds();
         this.matter.set60Hz();
+        console.log(this.matter);
 
         this.gameMusic = this.sound.add("gameMusic", { loop: true }).setVolume(.075);
         this.gameMusic.play();
