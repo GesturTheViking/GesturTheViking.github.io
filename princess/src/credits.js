@@ -22,7 +22,7 @@ creditsScene.Boot.prototype = {
         this.keyboardInput.space =   this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
         this.keyboardInput.enter =   this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ENTER);
 
-        this.add.text(1920/2, 1080/2, "Credits:\nAxel Melkersson - Lead Slav från Småland\nElia Rönning - Associate Principle Mutare av Utbildare\nSamuel Thorslund - Lead Sabotör av Andra Grupper\nJulian Wojtas - Boss Talent Acquisition Manager Lead Specialist HR Manager Artist\nEdward Blom - Lead Singer, Gastronom & Prinsessexpert\nTeo Silfverhjelm - Lead P-A Ring\nMorgan Waern Waernström - QA")
+        this.add.text(1920/2, 1080/2, "Filislaktus Games:\nAxel Melkersson - Pro Gramer\nElia Rönning - Pro Gramer\nSamuel Thorslund - MS Painter\nJulian Wojtas - MS Painter\nTeo Silfverhjelm - Proggart-ist\nPu Ekstrand - Ljudist & Gastronom\n\nTack till:\nMårten Jonsson - Röstskådespelare")
             .setOrigin(.5).setFontFamily('Comic Sans MS').setStroke(0, 4)
             .setFontSize(40);
 

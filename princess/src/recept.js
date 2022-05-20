@@ -23,6 +23,12 @@ let recept = [
         callback: (scene) => {
             scene.ingredienser.mikroAv.setTexture("mikroPa");
             scene.sounds.microLoop.play();
+            scene.sounds.marten175g.play();
+
+            scene.time.delayedCall(3000, () => 
+            {
+                scene.sounds.martenGlodlampa.play();
+            });
         }
     },
     {
@@ -34,8 +40,9 @@ let recept = [
             let x = scene.ingredienser.hona.x;
             let y = scene.ingredienser.hona.y;
 
-            SpawnIngredAt(scene.ingredienser.aggHel, x, y);
+            SpawnIngredAt(scene.ingredienser.aggHel[0], x, y);
             scene.sounds.aggSpawn.play();
+            scene.sounds.martenHona.play();
         }
     },
     {
@@ -44,10 +51,10 @@ let recept = [
         objekt2: 6,
         max: 50,
         callback: (scene) => {
-            let x = scene.ingredienser.aggHel.x;
-            let y = scene.ingredienser.aggHel.y;
+            let x = scene.ingredienser.aggHel[scene.heldEggIndex].x;
+            let y = scene.ingredienser.aggHel[scene.heldEggIndex].y;
 
-            RemoveIngred(scene.ingredienser.aggHel);
+            RemoveIngred(scene.ingredienser.aggHel[scene.heldEggIndex]);
             SpawnIngredAt(scene.ingredienser.agg, x, y);
             SpawnIngredAt(scene.ingredienser.skal, x, y - 10.0);
             scene.sounds.aggKras.play();
@@ -165,6 +172,7 @@ let recept = [
         objekt2: 10,
         max: 100,
         callback: (scene) => {
+
         }
     },
     {
@@ -173,7 +181,7 @@ let recept = [
         objekt2: 0,
         max: 100,
         callback: (scene) => {
-
+            scene.sounds.martAlskarVisp.play();
         }
     },
     {
@@ -198,7 +206,7 @@ let recept = [
         callback: (scene) => {
             let x = scene.ingredienser.tallrik.x;
             let y = scene.ingredienser.tallrik.y;
-            
+            //Sound 15
             RemoveIngred(scene.ingredienser.tallrik);
             RemoveIngred(scene.ingredienser.tartbottenHalv1);
             SpawnIngredAt(scene.ingredienser.tallrikbotten1, x, y);
@@ -290,6 +298,8 @@ let recept = [
             RemoveIngred(scene.ingredienser.tallrikbotten5);
             SpawnIngredAt(scene.ingredienser.tallrikbotten6, x, y);
             SpawnIngredAt(scene.ingredienser.florsockertom, x, y-10);
+
+            scene.sounds.martenVilkenArFlourSocker.play();
         }  
     },
     {

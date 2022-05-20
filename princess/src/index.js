@@ -6,8 +6,12 @@ let hasGlasses = false;
 
 let chickenHeld = false;
 let chickenAlive = true;
-let chickenTimer = 1.0;
-let chickenBounceRate = chickenTimer;
+let chickenTimer = [1.0];
+let chickenBounceRate = chickenTimer[0];
+let chickenCounter = 40;
+let chickenBirthRate = chickenCounter;
+let chickenHatchingDelay = 15.0;
+let chickenHatchingTimer = [];
 
 let ingredientAddTime = 100;
 let ingredientAddTimer = ingredientAddTime;
@@ -16,15 +20,30 @@ let score = 6000.0;
 let ingredientCollisionSoundTime = 250;
 let ingredientCollisionSoundTimer = ingredientCollisionSoundTime;
 
+let eggtimer = 0.2;
+let eggdelay = eggtimer;
+
+let aggCounter = 0;
+let childCounter = 0;
+
+let martenOntTime = 1500;
+let martenOntTimer = 0.0;
+
+let martenFelTime = 2000;
+let martenFelTimer = 0.0;
+
 let bunkensMjol = 0;
 let bunkensMaxMjol = 500;
 let keyboardInput = {};
+
+let totaltime = 0;
 
 let formatTime = (timer) => {
     let minutes = Math.floor(timer / 60);
     let seconds = timer - minutes * 60;
     return minutes + ':' + (seconds < 10 ? '0' : '') + (seconds.toString().substr(0, 4 + (seconds >= 10))).replace('.', ':');
 };
+
 
 gameScene.Boot = function () {
     this.face = null;
@@ -99,6 +118,7 @@ gameScene.Boot.prototype = {
         this.load.image("sockertom", "assets/sprites/sockertom.png");
         this.load.image("potatismjoltom", "assets/sprites/potatismjoltom.png");
         this.load.image("bakpulvertom", "assets/sprites/bakpulvertom.png");
+        this.load.image("kyckling", "assets/sprites/bebis.png");
 
         this.load.json("ingredienser", "assets/ingredienser.json");
 
@@ -136,9 +156,30 @@ gameScene.Boot.prototype = {
         this.load.audio("spelSyltHela", "assets/audio/spelSyltHela.wav");
         this.load.audio("taPaGlasogon", "assets/audio/taPaGlasogon.wav");
 
+        this.load.audio("martSugen", "assets/audio/Mårten/martenSugenPaPrinsessTarta.wav");
+        this.load.audio("martAlskarVisp", "assets/audio/Mårten/martenAlskarVispgradde.wav");
+        this.load.audio("martenDuGorFel", "assets/audio/Mårten/martenDuGorFel.wav");
+        this.load.audio("martenRamlarInIVaggen", "assets/audio/Mårten/martenRamlarInIVaggen.wav");
+        this.load.audio("marten175g", "assets/audio/Mårten/marten175Grader.wav");
+        this.load.audio("martenVilkenArFlourSocker", "assets/audio/Mårten/martenVilkenArFlourSocker.wav");
+        this.load.audio("martenHona", "assets/audio/Mårten/martenHona.wav");
+        this.load.audio("martenGlodlampa", "assets/audio/Mårten/martenGlodlampa.wav");
+
         this.load.audio("gameMusic", [ "assets/audio/Hillbilly_Swing.mp3", "assets/audio/Hillbilly_Swing.ogg" ]);
 
         this.load.image("WinBG", "assets/sprites/ui/WinBK.png");
+
+        this.load.setPath("assets/audio/Mårten");
+        this.load.audio("martenHurValjerManEnNyIngred", "martenHurValjerManEnNyIngred.wav");
+        this.load.audio("martenBorjarBliHungrig", "martenBorjarBliHungrig.wav");
+        this.load.audio("martenBlindaProggare", "martenBlindaProggare.wav");
+        this.load.audio("martenTvaBagare", "martenTvaBagare.wav");
+        this.load.audio("martenBlirGoBra", "martenBlirGoBra.wav");
+
+        this.load.audio("martenAtLjud", "martenAtLjud.wav");
+        this.load.audio("martenUtsokt", "martenUtsokt.wav");
+        this.load.audio("martenTaDetForsiktigtKniv", "martenTaDetForsiktigtKniv.wav");
+        this.load.audio("martenSkarAldrigEmotDig", "martenSkarAldrigEmotDig.wav");
     },
     create: function () {
         document.body.style.background = 'url("assets/bageri.png")';
@@ -149,9 +190,27 @@ gameScene.Boot.prototype = {
         this.matter.world.setBounds();
         this.matter.set60Hz();
 
+        /* Audio */
         this.gameMusic = this.sound.add("gameMusic", { loop: true }).setVolume(.075);
         this.gameMusic.play();
+
+        this.randomLines = [
+            this.sound.add("martenHurValjerManEnNyIngred"),
+            this.sound.add("martenBorjarBliHungrig"),
+            this.sound.add("martenBlindaProggare"),
+            this.sound.add("martenTvaBagare"),
+            this.sound.add("martenBlirGoBra"),
+        ];
+        this.eliaContextLines = {
+            martenAtLjud: this.sound.add("martenAtLjud"),
+            martenUtsokt: this.sound.add("martenUtsokt"),
+            martenTaDetForsiktigtKniv: this.sound.add("martenTaDetForsiktigtKniv"),
+            martenSkarAldrigEmotDig: this.sound.add("martenSkarAldrigEmotDig"),
+        };
+        this.randomLineTimer = 10.0;
         
+        this.heldEggIndex = 0;
+
         keyboardInput.cursors = this.input.keyboard.createCursorKeys();
         keyboardInput.shift =   this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SHIFT);
         keyboardInput.w =       this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.W);
@@ -181,6 +240,14 @@ gameScene.Boot.prototype = {
                             {
                                 chickenHeld = true;
                             }
+                            else if (B.gameObject.texture.key == "eggHel")
+                            {
+                                gameScene.heldEggIndex = B.gameObject.getData("eggIndex");
+                            }
+                            else if (B.gameObject.texture.key == "kniv" && Math.random() < .2)
+                            {
+                                t.eliaContextLines.martenTaDetForsiktigtKniv.play();
+                            }
                         }
                         if ((A.gameObject.texture.key == "Ropenhand" || A.gameObject.texture.key == "Rclosedhand")
                          && !A.gameObject.getData("hasIngrediens") && rightGrabbing)
@@ -194,6 +261,14 @@ gameScene.Boot.prototype = {
                             {
                                 chickenHeld = true;
                             }
+                            else if (B.gameObject.texture.key == "eggHel")
+                            {
+                                gameScene.heldEggIndex = B.gameObject.getData("eggIndex");
+                            }
+                            else if (B.gameObject.texture.key == "kniv" && Math.random() < .2)
+                            {
+                                t.eliaContextLines.martenSkarAldrigEmotDig.play();
+                            }
                         }
                         
                         if (!A.gameObject.getData("hasIngrediens") && A.gameObject.texture.key == "head" && B.gameObject.texture.key == "solglasogon")
@@ -201,7 +276,7 @@ gameScene.Boot.prototype = {
                             B.gameObject.setSensor(true);
                             B.gameObject.setCollidesWith();
 
-                            console.log(A.gameObject.body);
+                           // console.log(A.gameObject.body);
                             var rot = A.gameObject.body.angle;
                             B.gameObject.body.angle = rot;
                             t.matter.add.constraint(A.gameObject, B.gameObject, 10, .05,
@@ -250,7 +325,7 @@ gameScene.Boot.prototype = {
                         }
                     }
 
-                    if (A.gameObject.getData("isIngrediens") && B.gameObject.getData("isIngrediens") && ingredientCollisionSoundTimer <= 0.0)
+                    if (A.gameObject.getData("isIngrediens") && B.gameObject.getData("isIngrediens"))
                     {
                         let velBunkeX = A.gameObject.body.velocity.x;
                         let velBunkeY = A.gameObject.body.velocity.y;
@@ -261,25 +336,58 @@ gameScene.Boot.prototype = {
                         let mag = magIngred1 + magIngred2;
 
                         if(mag > 15) {
-                            if(A.gameObject.getData("mikro") || B.gameObject.getData("mikro")) {
-                                t.sounds.microPling.play();
+                            if(nuvarandeSteg == 15 && ((index1 == 25 && index2 == 27) || (index1 == 27 && index2 == 25)) && martenFelTimer <= 0.0) {
+                                t.sounds.martenDuGorFel.play();
+                                martenFelTimer = martenFelTime;
                             }
+                            
+                            if ((A.gameObject.texture.key == "hona" && B.gameObject.texture.key == "varmeLampa") ||
+                               (B.gameObject.texture.key == "hona" && A.gameObject.texture.key == "varmeLampa"))
+                            {
+                                chickenCounter += mag;
+                                if (chickenCounter > chickenBirthRate && eggtimer <= 0 && nuvarandeSteg > 1)
+                                {
+                                    let x = t.ingredienser.hona.x;
+                                    let y = t.ingredienser.hona.y;
+                                    chickenCounter = chickenCounter - chickenBirthRate;
+                                    
+                                    var agg = t.matter.add.sprite(x - 100, y, "aggHel");
+                                    agg.setBody(t.ingredienser_colliders.eggINTACT).setScale(0.8);
+                                    agg.setVelocityX(Math.random() * 20.0);
+                                    agg.setVelocityY(Math.random() * 20.0);
+                                    agg.setData("isIngrediens", true);
+                                    agg.setData({ index: 6, emitter: t.emitters.aggskal, eggIndex: aggCounter });
+                                    t.ingredienser.aggHel.push(agg);
+                                    t.sounds.aggSpawn.play();
+                                    chickenHatchingTimer.push(chickenHatchingDelay);
+                                    chickenTimer.push(chickenBounceRate);
+                                    aggCounter++;
+                                    eggtimer = eggdelay;
+                                }   
+                            }
+                            
+                            
+                            if(ingredientCollisionSoundTimer <= 0.0) 
+                            { 
+                                if(A.gameObject.getData("mikro") || B.gameObject.getData("mikro")) {
+                                    t.sounds.microPling.play();
+                                }
+                                let rand = Math.random() * 100;
+                                if(rand < 25){
+                                    t.sounds.kollision1.play();
+                                }
+                                else if(rand < 50){
+                                    t.sounds.kollision2.play();
+                                }
+                                else if(rand < 75){
+                                    t.sounds.kollision3.play();
+                                }
+                                else if(rand < 100){
+                                    t.sounds.kollision4.play();
+                                }
 
-                            let rand = Math.random() * 100;
-                            if(rand < 25){
-                                t.sounds.kollision1.play();
+                                ingredientCollisionSoundTimer = ingredientCollisionSoundTime;
                             }
-                            else if(rand < 50){
-                                t.sounds.kollision2.play();
-                            }
-                            else if(rand < 75){
-                                t.sounds.kollision3.play();
-                            }
-                            else if(rand < 100){
-                                t.sounds.kollision4.play();
-                            }
-
-                            ingredientCollisionSoundTimer = ingredientCollisionSoundTime;
                         }
                     }
                 }
@@ -290,6 +398,7 @@ gameScene.Boot.prototype = {
                     let magIngred = Math.sqrt(velIngredX * velIngredX + velIngredY * velIngredY);
                     
                     let index2 = B.gameObject.getData("index");
+                   // console.log(index2);
                     if (index2 == recept[nuvarandeSteg].objekt1 && index2 == recept[nuvarandeSteg].objekt2)
                     {
                         if(magIngred > 8){
@@ -344,6 +453,30 @@ gameScene.Boot.prototype = {
                             if(emitterB && emitterExplodeCountB){
                                 emitterB.explode(emitterExplodeCountB, B.gameObject.x, B.gameObject.y)
                             }
+                    }
+                }
+
+                if(martenOntTimer <= 0.0){
+                    if(!A.isStatic && A.gameObject.getData("isCharacter") && B.isStatic) {
+                        let velCharacterX = A.gameObject.body.velocity.x;
+                        let velCharacterY = A.gameObject.body.velocity.y;
+                        let magCharacter = Math.sqrt(velCharacterX * velCharacterX + velCharacterY * velCharacterY);
+    
+                        if(magCharacter > 24){
+                            t.sounds.martenRamlarInIVaggen.play();
+                            martenOntTimer = martenOntTime;
+                        }
+                    }
+    
+                    if(!B.isStatic && B.gameObject.getData("isCharacter") && A.isStatic) {
+                        let velCharacterX = B.gameObject.body.velocity.x;
+                        let velCharacterY = B.gameObject.body.velocity.y;
+                        let magCharacter = Math.sqrt(velCharacterX * velCharacterX + velCharacterY * velCharacterY);
+    
+                        if(magCharacter > 24){
+                            t.sounds.martenRamlarInIVaggen.play();
+                            martenOntTimer = martenOntTime;
+                        }
                     }
                 }
 
@@ -767,6 +900,7 @@ gameScene.Boot.prototype = {
             this.ingredienser.gronFagel.setBody(this.ingredienser_colliders.blue).setScale(0.5);
             this.ingredienser.gronFagel.setData({ index: 3, emitter: this.emitters.default, explodeCount: 10 });
             RemoveIngred(this.ingredienser.gronFagel);
+            
 
             this.ingredienser.hona = this.matter.add.sprite(1860, 1000, "hona");
             this.ingredienser.hona.setBody(this.ingredienser_colliders.chicken).setScale(0.5);
@@ -776,25 +910,30 @@ gameScene.Boot.prototype = {
             this.ingredienser.agg.setBody(this.ingredienser_colliders.egg).setScale(0.8);
             this.ingredienser.agg.setData({ index: 5, emitter: this.emitters.default, explodeCount: 10 });
             RemoveIngred(this.ingredienser.agg);
+            
 
-            this.ingredienser.aggHel = this.matter.add.sprite(60, 350, "aggHel");
-            this.ingredienser.aggHel.setBody(this.ingredienser_colliders.eggINTACT).setScale(0.8);
-            this.ingredienser.aggHel.setData({ index: 6, emitter: this.emitters.aggskal, explodeCount: 10 });
-            RemoveIngred(this.ingredienser.aggHel);
+            this.ingredienser.aggHel = [this.matter.add.sprite(60, 350, "aggHel")];
+            this.ingredienser.aggHel[0].setBody(this.ingredienser_colliders.eggINTACT).setScale(0.8);
+            this.ingredienser.aggHel[0].setData({ index: 6, emitter: this.emitters.aggskal, eggIndex: aggCounter++, explodeCount: 10 });
+            RemoveIngred(this.ingredienser.aggHel[0]);
+
 
             this.ingredienser.florSocker = this.matter.add.sprite(40, 420, "florsocker");
             this.ingredienser.florSocker.setBody(this.ingredienser_colliders.florsocker).setScale(0.7);
             this.ingredienser.florSocker.setData({ index: 7, emitter: this.emitters.socker, explodeCount: 10 });
 
+
             this.ingredienser.spelSylt = this.matter.add.sprite(60, 580, "spelsylt");
             this.ingredienser.spelSylt.setBody(this.ingredienser_colliders.gamejam).setScale(1.0);
             this.ingredienser.spelSylt.setData({ index: 8, emitter: this.emitters.blod, explodeCount: 10 });
             RemoveIngred(this.ingredienser.spelSylt);
+            
 
             this.ingredienser.blaFagel = this.matter.add.sprite(60, 500, "blaFagel");
             this.ingredienser.blaFagel.setBody(this.ingredienser_colliders.green).setScale(0.5);
             this.ingredienser.blaFagel.setData({ index: 9, emitter: this.emitters.default, explodeCount: 10 });
             RemoveIngred(this.ingredienser.blaFagel);
+            
 
             this.ingredienser.gradde = this.matter.add.sprite(120, 650, "gradde");
             this.ingredienser.gradde.setBody(this.ingredienser_colliders.gradde).setScale(0.7);
@@ -820,11 +959,13 @@ gameScene.Boot.prototype = {
             this.ingredienser.raKyckling.setBody(this.ingredienser_colliders.RAW).setScale(0.5);
             this.ingredienser.raKyckling.setData({ index: 15, emitter: this.emitters.default, explodeCount: 10 });
             RemoveIngred(this.ingredienser.raKyckling);
+            
 
             this.ingredienser.skal = this.matter.add.sprite(1860, 300, "skal");
             this.ingredienser.skal.setBody(this.ingredienser_colliders.skal).setScale(0.8);
             this.ingredienser.skal.setData({ index: 16, emitter: this.emitters.aggskal, explodeCount: 10 });
             RemoveIngred(this.ingredienser.skal);
+            
 
             this.ingredienser.sked = this.matter.add.sprite(1860, 410, "sked");
             this.ingredienser.sked.setBody(this.ingredienser_colliders.sked).setScale(0.7);
@@ -838,6 +979,7 @@ gameScene.Boot.prototype = {
             this.ingredienser.kycklingBrostFile.setBody(this.ingredienser_colliders.tiddy).setScale(0.7);
             this.ingredienser.kycklingBrostFile.setData({ index: 19, emitter: this.emitters.default, explodeCount: 10 });
             RemoveIngred(this.ingredienser.kycklingBrostFile);
+            
 
             this.ingredienser.vaniljSocker = this.matter.add.sprite(150, 420, "vaniljSocker");
             this.ingredienser.vaniljSocker.setBody(this.ingredienser_colliders.vaniljSocker).setScale(1.0);
@@ -852,20 +994,24 @@ gameScene.Boot.prototype = {
             this.ingredienser.varmeLampa.setData({ index: 22, emitter: this.emitters.el, explodeCount: 4 });
             this.matter.add.constraint(this.hyllor.lampFaste, this.ingredienser.varmeLampa, 100, .05,
                 { pointA: { x: 0, y: 0 }, pointB: { x: 0, y: 50 } });
+                
 
             this.ingredienser.tartbottenHel = this.matter.add.sprite(1860, 650, "tartbottenHel");
             this.ingredienser.tartbottenHel.setBody(this.ingredienser_colliders.tartbottenHel);
             this.ingredienser.tartbottenHel.setData({ index: 23, emitter: this.emitters.default, explodeCount: 10 });
             RemoveIngred(this.ingredienser.tartbottenHel);
+            
 
             this.ingredienser.tartbottenHalv1 = this.matter.add.sprite(1860, 700, "tartbottenHalv");
             this.ingredienser.tartbottenHalv1.setBody(this.ingredienser_colliders.tartbottenHalv1);
             this.ingredienser.tartbottenHalv1.setData({ index: 24, emitter: this.emitters.default, explodeCount: 10 });
             RemoveIngred(this.ingredienser.tartbottenHalv1);
+            
             this.ingredienser.tartbottenHalv2 = this.matter.add.sprite(1860, 700, "tartbottenHalv");
             this.ingredienser.tartbottenHalv2.setBody(this.ingredienser_colliders.tartbottenHalv2);
             this.ingredienser.tartbottenHalv2.setData({ index: 25, emitter: this.emitters.default, explodeCount: 10 });
             RemoveIngred(this.ingredienser.tartbottenHalv2);
+            
 
             this.ingredienser.kniv = this.matter.add.sprite(1860, 830, "kniv");
             this.ingredienser.kniv.setBody(this.ingredienser_colliders.kniv);
@@ -880,36 +1026,43 @@ gameScene.Boot.prototype = {
             this.ingredienser.tallrikbotten1.setBody(this.ingredienser_colliders.tallrikbotten1);
             this.ingredienser.tallrikbotten1.setData({ index: 28, emitter: this.emitters.default, explodeCount: 10 });
             RemoveIngred(this.ingredienser.tallrikbotten1);
+            
 
             this.ingredienser.tallrikbotten2 = this.matter.add.sprite(1160, 1000, "tallrikbotten2");
             this.ingredienser.tallrikbotten2.setBody(this.ingredienser_colliders.tallrikbotten2);
             this.ingredienser.tallrikbotten2.setData({ index: 29, emitter: this.emitters.default, explodeCount: 10 });
             RemoveIngred(this.ingredienser.tallrikbotten2);
+            
 
             this.ingredienser.tallrikbotten3 = this.matter.add.sprite(1160, 1000, "tallrikbotten3");
             this.ingredienser.tallrikbotten3.setBody(this.ingredienser_colliders.tallrikbotten3);
             this.ingredienser.tallrikbotten3.setData({ index: 30, emitter: this.emitters.default, explodeCount: 10 });
             RemoveIngred(this.ingredienser.tallrikbotten3);
+            
 
             this.ingredienser.tallrikbotten4 = this.matter.add.sprite(1160, 1000, "tallrikbotten4");
             this.ingredienser.tallrikbotten4.setBody(this.ingredienser_colliders.tallrikbotten4);
             this.ingredienser.tallrikbotten4.setData({ index: 31, emitter: this.emitters.default, explodeCount: 10 });
             RemoveIngred(this.ingredienser.tallrikbotten4);
+            
 
             this.ingredienser.tallrikbotten5 = this.matter.add.sprite(1160, 1000, "tallrikbotten5");
             this.ingredienser.tallrikbotten5.setBody(this.ingredienser_colliders.tallrikbotten5);
             this.ingredienser.tallrikbotten5.setData({ index: 32, emitter: this.emitters.default, explodeCount: 10 });
             RemoveIngred(this.ingredienser.tallrikbotten5);
+            
 
             this.ingredienser.tallrikbotten6 = this.matter.add.sprite(1160, 1000, "tallrikbotten6");
             this.ingredienser.tallrikbotten6.setBody(this.ingredienser_colliders.tallrikbotten6);
             this.ingredienser.tallrikbotten6.setData({ index: 33, emitter: this.emitters.default, explodeCount: 10 });
             RemoveIngred(this.ingredienser.tallrikbotten6);
             
+            
             this.ingredienser.tallrikbotten7 = this.matter.add.sprite(1160, 1000, "tallrikbotten7");
             this.ingredienser.tallrikbotten7.setBody(this.ingredienser_colliders.tallrikbotten7);
             this.ingredienser.tallrikbotten7.setData({ index: 34, emitter: this.emitters.default, explodeCount: 10 });
             RemoveIngred(this.ingredienser.tallrikbotten7);
+            
 
             this.ingredienser.rosEllerHallon = this.matter.add.sprite(160, 630, "rosEllerHallon");
             this.ingredienser.rosEllerHallon.setBody(this.ingredienser_colliders.rosEllerHallon);
@@ -919,58 +1072,75 @@ gameScene.Boot.prototype = {
             this.ingredienser.bakpulverlock.setBody(this.ingredienser_colliders.bakpulverlock);
             this.ingredienser.bakpulverlock.setData({ index: 36, emitter: this.emitters.default, explodeCount: 10 });
             RemoveIngred(this.ingredienser.bakpulverlock);
+            
 
             this.ingredienser.marsipantom = this.matter.add.sprite(160, 630, "marsipantom");
             this.ingredienser.marsipantom.setBody(this.ingredienser_colliders.marsipantom);
             this.ingredienser.marsipantom.setData({ index: 37, emitter: this.emitters.default, explodeCount: 10 });
             RemoveIngred(this.ingredienser.marsipantom);
+            
 
             this.ingredienser.spelsylttom = this.matter.add.sprite(160, 630, "spelsylttom");
             this.ingredienser.spelsylttom.setBody(this.ingredienser_colliders.spelsylttom);
             this.ingredienser.spelsylttom.setData({ index: 38, emitter: this.emitters.default, explodeCount: 10 });
             RemoveIngred(this.ingredienser.spelsylttom);
+            
 
             this.ingredienser.vaniljlock = this.matter.add.sprite(160, 630, "vaniljlock");
             this.ingredienser.vaniljlock.setBody(this.ingredienser_colliders.vaniljlock);
             this.ingredienser.vaniljlock.setData({ index: 39, emitter: this.emitters.default, explodeCount: 10 });
             RemoveIngred(this.ingredienser.vaniljlock);
+            
 
             this.ingredienser.vaniljtom = this.matter.add.sprite(160, 630, "vaniljtom");
             this.ingredienser.vaniljtom.setBody(this.ingredienser_colliders.vaniljtom);
             this.ingredienser.vaniljtom.setData({ index: 39, emitter: this.emitters.default, explodeCount: 10 });
             RemoveIngred(this.ingredienser.vaniljtom);
+            
 
             this.ingredienser.mjoltom = this.matter.add.sprite(160, 630, "mjoltom");
             this.ingredienser.mjoltom.setBody(this.ingredienser_colliders.mjoltom).setScale(0.5);
             this.ingredienser.mjoltom.setData({ index: 40, emitter: this.emitters.default, explodeCount: 10 });
             RemoveIngred(this.ingredienser.mjoltom);
+            
 
             this.ingredienser.florsockertom = this.matter.add.sprite(160, 630, "florsockertom");
             this.ingredienser.florsockertom.setBody(this.ingredienser_colliders.florsockertom);
             this.ingredienser.florsockertom.setData({ index: 41, emitter: this.emitters.default, explodeCount: 10 });
             RemoveIngred(this.ingredienser.florsockertom);
+            
 
             this.ingredienser.sockertom = this.matter.add.sprite(160, 630, "sockertom");
             this.ingredienser.sockertom.setBody(this.ingredienser_colliders.sockertom);
             this.ingredienser.sockertom.setData({ index: 42, emitter: this.emitters.default, explodeCount: 10 });
             RemoveIngred(this.ingredienser.sockertom);
+            
 
             this.ingredienser.potatismjoltom = this.matter.add.sprite(160, 630, "potatismjoltom");
             this.ingredienser.potatismjoltom.setBody(this.ingredienser_colliders.potatismjoltom).setScale(0.5);
             this.ingredienser.potatismjoltom.setData({ index: 43, emitter: this.emitters.default, explodeCount: 10 });
             RemoveIngred(this.ingredienser.potatismjoltom);
             
+            
             this.ingredienser.bakpulvertom = this.matter.add.sprite(160, 630, "bakpulvertom");
             this.ingredienser.bakpulvertom.setBody(this.ingredienser_colliders.bakpulvertom);
             this.ingredienser.bakpulvertom.setData({ index: 44, emitter: this.emitters.default, explodeCount: 10 });
             RemoveIngred(this.ingredienser.bakpulvertom);
 
+            this.ingredienser.kyckling = [this.matter.add.sprite(60, 350, "kyckling")];
+            this.ingredienser.kyckling[0].setBody(this.ingredienser_colliders.bebis).setScale(0.5);
+            this.ingredienser.kyckling[0].setData({ index: 45, emitter: this.emitters.fjader, eggIndex: 0, explodeCount: 5 });
+            RemoveIngred(this.ingredienser.kyckling[0]);
+            
+
             this.ingredienser.solglasogon = this.matter.add.sprite(1830, 630, "solglasogon");
             this.ingredienser.solglasogon.setBody(this.ingredienser_colliders.solglasogon);
-            this.ingredienser.solglasogon.setData({ index: 69, emitter: this.emitters.default, explodeCount: 10 });
+
+            this.ingredienser.solglasogon.setData({ index: 1337, emitter: this.emitters.default, explodeCount: 10  });
 
             Object.values(this.ingredienser).forEach((obj) => {
-                obj.setData("isIngrediens", true);
+                if (!Array.isArray(obj))
+                    obj.setData("isIngrediens", true);
             });
         }
 
@@ -992,6 +1162,15 @@ gameScene.Boot.prototype = {
             this.sounds.spelSyltBre = this.sound.add("spelSyltBre");
             this.sounds.spelSyltHela = this.sound.add("spelSyltHela");
             this.sounds.taPaGlasogon = this.sound.add("taPaGlasogon");
+
+            this.sounds.martSugen = this.sound.add("martSugen");
+            this.sounds.martAlskarVisp = this.sound.add("martAlskarVisp");
+            this.sounds.martenDuGorFel = this.sound.add("martenDuGorFel");
+            this.sounds.martenRamlarInIVaggen = this.sound.add("martenRamlarInIVaggen");
+            this.sounds.marten175g = this.sound.add("marten175g");
+            this.sounds.martenVilkenArFlourSocker = this.sound.add("martenVilkenArFlourSocker");
+            this.sounds.martenHona = this.sound.add("martenHona");
+            this.sounds.martenGlodlampa = this.sound.add("martenGlodlampa");
         }
 
         txt = this.add.text(1800, 20, 'hej').setFontFamily('Comic Sans MS').setFontSize(32)/* .setColor("#ff389c") */.setStroke(0, 4);
@@ -1009,12 +1188,27 @@ gameScene.Boot.prototype = {
                 .setOrigin(.5).setFontFamily("Comic Sans MS").setFontSize(64).setColor("#b5e61d").setStroke(0, 4)
                 .setVisible(false);
         }
+
+        this.time.delayedCall(500, () => 
+        {
+            this.sounds.martSugen.play();
+        });
     },
     update: function (frame, dt) {
         this.delay -= dt;
+        totaltime += dt/1000.0;
+        eggtimer -= dt/1000.0;
+        
         if (this.delay >= .0)
         {
             return;
+        }
+
+        this.randomLineTimer -= dt / 1000;
+        if (this.randomLineTimer <= 0.0)
+        {
+            this.randomLineTimer = Phaser.Math.Between(15, 50);
+            Phaser.Math.RND.pick(this.randomLines).play();
         }
 
         Object.values(this.ingredienser).forEach((obj) => {
@@ -1077,6 +1271,15 @@ gameScene.Boot.prototype = {
                                 + "\nPress " + (this.input.gamepad.total > 0 ? "A" : "Enter") + " to return to menu.").setVisible(true);
                             this.winBG.setVisible(true);
                             this.timerTxt.setVisible(false);
+
+                            if (Math.random() >= .5)
+                            {
+                                this.eliaContextLines.martenAtLjud.play();
+                            }
+                            else
+                            {
+                                this.eliaContextLines.martenUtsokt.play();
+                            }
                         }
                     }, [], this);
                 }
@@ -1138,18 +1341,72 @@ gameScene.Boot.prototype = {
             ingredientAddTimer = 0;
         }
 
-        if (!chickenHeld && chickenAlive)
+
+        martenOntTimer -= dt;
+        if(martenOntTimer <= 0.0)
         {
-            //console.log(dt);
-            chickenTimer -= dt / 1000,0;
-            if (chickenTimer <= 0)
+            martenOntTimer = 0;
+        }
+
+        martenFelTimer -= dt;
+        if(martenFelTimer <= 0.0)
+        {
+            martenFelTimer = 0;
+        }
+        
+        if (chickenAlive)
+        {
+            if (!chickenHeld)
             {
-                this.ingredienser.hona.setVelocityY(-6);
-                this.ingredienser.hona.setVelocityX(Math.sin(dt));
-                chickenTimer = chickenBounceRate;
-                chickenBounceRate = Math.random() + 1.0;
+                chickenTimer[0] -= dt / 1000,0;
+                if (chickenTimer[0] <= 0)
+                {
+                    this.ingredienser.hona.setVelocityY(-10);
+                    this.ingredienser.hona.setVelocityX(Math.cos(totaltime * 1.5+ 1.5) * 5.0);
+                    chickenTimer[0] = chickenBounceRate;
+                    chickenBounceRate = Math.random() + 1.0;
+                }
             }
         }
+
+        let ctr = 0;
+        Object.values(this.ingredienser.aggHel).forEach((obj) => {
+            if (chickenHatchingTimer[ctr] <= 0 && chickenHatchingTimer[ctr] > -1.0)
+            {
+                chickenHatchingTimer[ctr] = -10;
+                let x = obj.x;
+                let y = obj.y;
+                RemoveIngred(obj);
+                var kyc = this.matter.add.sprite(x, y, "kyckling");
+                kyc.setBody(this.ingredienser_colliders.bebis).setScale(0.5);
+                kyc.setData({ index: 45, emitter: this.emitters.fjader, eggIndex: ctr });
+                this.ingredienser.kyckling.push(kyc);
+                childCounter++;
+                var shell = this.matter.add.sprite(x, y - 10, "skal")
+                shell.setBody(this.ingredienser_colliders.skal).setScale(0.8);
+                shell.setData({index: 16, emitter: this.emitters.aggskal });
+
+            }
+            else 
+            {
+                chickenHatchingTimer[ctr] -= dt/1000.0;
+            }
+            ctr++;
+        });
+
+        ctr = 1;
+        Object.values(this.ingredienser.kyckling).forEach((obj) => {
+            chickenTimer[ctr] -= dt / 1000,0;
+            if (chickenTimer[ctr] <= 0)
+            {
+                console.log("chicken jumped");
+                obj.setVelocityY(-7);
+                obj.setVelocityX(Math.cos(totaltime * 1.5 + 1.5) * 5.0);
+                chickenTimer[ctr] = chickenBounceRate;
+                chickenBounceRate = Math.random() + 1.0;
+            }
+            ctr++;
+        });
 
         //this.scene.pause();
         let speed = 24;
